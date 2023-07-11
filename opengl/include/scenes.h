@@ -33,7 +33,7 @@ class Scene1_2 : public Scene
 {
 private:
     // Member variables
-    float aspect;
+    float aspect = 600.0 / 800.0;
     GLuint vao[1];
     GLuint vbo[1];
     GLuint ebo[1];

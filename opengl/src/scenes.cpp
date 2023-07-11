@@ -186,7 +186,7 @@ void Scene1_2::Init()
     glEnableVertexAttribArray(1);
 
     // gl global settings
-    // glEnable(GL_CULL_FACE);
+    glEnable(GL_CULL_FACE);
     glEnable(GL_DEPTH_TEST);
     mInitialized = true;
 }

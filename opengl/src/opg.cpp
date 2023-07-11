@@ -75,8 +75,8 @@ void Render::init()
     // Load Scene
     std::shared_ptr<Scene1_1> scene1_1 = std::make_shared<Scene1_1>("Scene1_1");
     std::shared_ptr<Scene1_2> scene1_2 = std::make_shared<Scene1_2>("Scene1_2");
-    mSceneManager.RegisterScene(scene1_1);
     mSceneManager.RegisterScene(scene1_2);
+    mSceneManager.RegisterScene(scene1_1);
     mScene        = mSceneManager.GetCurrentScene();
     int scene_num = mSceneManager.GetSceneList().size();
     for (auto item : mSceneManager.GetSceneList())
