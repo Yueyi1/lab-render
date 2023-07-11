@@ -1,0 +1,102 @@
+cmake_minimum_required(VERSION 3.13)
+
+project(OPG_LABS VERSION 1.0)
+
+# compiler flag
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
+set(CMAKE_DEBUG_POSTFIX "_d")
+
+if(MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /Od")
+else()
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -g0")
+endif()
+
+#----------------------------------------------------SET OUTPUT PATH------------------------------------------------------------
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# for multi-config builds (e.g. msvc)
+foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
+    string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
+    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/bin )
+    set( CMAKE_LIBRARY_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib )
+    set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY_${OUTPUTCONFIG} ${CMAKE_BINARY_DIR}/lib )
+endforeach( OUTPUTCONFIG CMAKE_CONFIGURATION_TYPES )
+
+#----------------------------------------------------THIRD PARTY LIBS-----------------------------------------------------------
+# opengl
+find_package(OpenGL REQUIRED)
+
+# glfw
+set(GLFW_BUILD_DOCS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+add_subdirectory(external/glfw)
+
+# assimp
+set(ASSIMP_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(ASSIMP_INSTALL OFF CACHE BOOL "" FORCE)
+set(BUILD_ASSIMP_TOOLS OFF CACHE BOOL "" FORCE) # 不需要Assimp提供的工具
+set(ASSIMP_BUILD_ALL_IMPORTERS_BY_DEFAULT OFF) # 不编译所有导入器
+set(ASSIMP_BUILD_OBJ_IMPORTER ON CACHE BOOL "") # 编译OBJ导入器
+set(ASSIMP_BUILD_FBX_IMPORTER ON CACHE BOOL "") # 编译FBX导入器
+set(ASSIMP_BUILD_GLTF_IMPORTER ON CACHE BOOL "") # 编译GLTF导入器
+set(ASSIMP_NO_EXPORT ON CACHE BOOL "") # 关闭所有导出器
+add_subdirectory(external/assimp)
+if(MSVC)
+    set_target_properties(assimp PROPERTIES OUTPUT_NAME assimp)
+endif()
+
+# imgui
+add_subdirectory(external/imgui)
+target_link_libraries(imgui PUBLIC glfw)
+
+# glm
+add_subdirectory(external/glm)
+
+#----------------------------------------------------BUILD OWN LIBS-----------------------------------------------------------
+
+#----------------------------------------------------INCLUDE FILES PATH----------------------------------------------------------
+#include
+include_directories(${CMAKE_SOURCE_DIR}/include)
+include_directories(external/glfw/include)
+include_directories(external/assimp/include)
+include_directories(external/imgui)
+include_directories(external/glm)
+include_directories(external/glad/include)
+
+#----------------------------------------------------LINKING LIBS PATH-----------------------------------------------------------
+link_directories(${CMAKE_BINARY_DIR}/lib)
+
+#----------------------------------------------------LINK EXECUTABLE AND LIBS----------------------------------------------------
+set(LIBS ${OPENGL_LIBRARIES} optimized glfw3 assimp imgui debug glfw3_d assimp_d imgui_d)
+
+#----------------------------------------------------COMPILE EXECUTABLE----------------------------------------------------------
+# header
+set(COMMON_LIB_SRC external/glad/src/glad.c)
+
+# run dir
+set(RUN_DIR ${PROJECT_SOURCE_DIR}/bin)
+
+# add src to executable
+if(MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
+endif()
+
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    add_compile_definitions(_DEBUG)
+endif()
+
+# compile the Integrated project
+file(GLOB_RECURSE MY_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
+add_executable(opengl-render WIN32 ${MY_APP_SRC} ${COMMON_LIB_SRC})
+set_property(TARGET opengl-render PROPERTY DEBUG_POSTFIX _d)
+if(MSVC)
+    set_property(TARGET opengl-render PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
+endif()
+target_link_libraries(opengl-render ${LIBS})
+add_dependencies(opengl-render glfw assimp imgui)
+
+ADD_CUSTOM_TARGET(debug ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE:STRING=Debug ${PROJECT_SOURCE_DIR})
+ADD_CUSTOM_TARGET(release ${CMAKE_COMMAND} -DCMAKE_BUILD_TYPE:STRING=Release ${PROJECT_SOURCE_DIR})
