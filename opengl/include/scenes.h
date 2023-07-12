@@ -3,6 +3,7 @@
 
 #include "scene_manager.h"
 #include "model.h"
+#include "camera.h"
 
 class Scene1_1 : public Scene
 {
@@ -61,6 +62,7 @@ class Scene1_3 : public Scene
 {
 private:
     // Member variables
+    Camera mCamera;
     GLuint vao[1];
     GLuint vbo[1];
     GLuint ebo[1];
