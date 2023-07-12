@@ -1,5 +1,12 @@
 #include "opg.h"
 
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+
+#include "scene_manager.h"
+#include "scenes.h"
+
 Render::Render()
 {
     init();

@@ -1,5 +1,7 @@
 #include "scene_manager.h"
 
+#include "imgui.h"
+
 Scene::Scene(std::string name = "untitled") : mName(name)
 {
 }

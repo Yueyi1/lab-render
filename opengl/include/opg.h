@@ -1,17 +1,16 @@
 #ifndef OPG_H
 #define OPG_H
 
-#include "scene_manager.h"
-#include "scenes.h"
+#include <memory>
+#include <vector>
 
-const int WindowWidth  = 800;
-const int WindowHeight = 600;
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
 
 class Render
 {
 protected:
     GLFWwindow *mWindow;
-
     // scenes
     SceneManager mSceneManager;
     std::shared_ptr<Scene> mScene;
