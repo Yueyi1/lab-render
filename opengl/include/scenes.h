@@ -25,6 +25,8 @@ public:
     };
     void Init() override;
     void Clean() override;
+    void Start() override;
+    void Leave() override;
     void GLRendering() override;
     void ImguiRendering() override;
 };
@@ -48,6 +50,8 @@ public:
     };
     void Init() override;
     void Clean() override;
+    void Start() override;
+    void Leave() override;
     void GLRendering() override;
     void ImguiRendering() override;
 };

@@ -20,8 +20,9 @@ void Render::sceneui()
             if (mCurrentIndex != last_scen_index)
             {
                 mSceneManager.SwitchScene(mCurrentIndex);
+                mScene->Leave();
                 mScene = mSceneManager.GetCurrentScene();
-                mScene->Init();
+                mScene->Start();
                 last_scen_index = mCurrentIndex;
             }
         }
@@ -85,7 +86,7 @@ void Render::init()
         std::strcpy(const_cast<char *>(tmp), item->GetName().c_str());
         mSceneNameList.push_back(tmp);
     }
-    mScene->Init();
+    mScene->Start();
     mInitSuccess = true;
     DEBUG_PRINTF("Render::init() %i \n", mInitSuccess);
 }

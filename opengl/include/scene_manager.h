@@ -19,12 +19,11 @@ public:
     Scene(std::string name);
     ~Scene();
     std::string GetName();
-    unsigned int GetTime()
-    {
-        return (unsigned int)(glfwGetTime() * 1000.0);
-    }
+    unsigned int GetTime();
     virtual void Init(){};
     virtual void Clean(){};
+    virtual void Start(){};
+    virtual void Leave(){};
     virtual void GLRendering()    = 0;
     virtual void ImguiRendering() = 0;
 };

@@ -17,8 +17,6 @@ static inline float random_float()
 
 void Scene1_1::Init()
 {
-    if (mInitialized)
-        return;
     static const GLfloat vertices[52][2] = {// Points
                                             {-0.8, -0.8},
                                             {0.8, 0.8},
@@ -102,6 +100,26 @@ void Scene1_1::Clean()
     glDeleteBuffers(1, VBOs);
 }
 
+void Scene1_1::Start()
+{
+    if (!mInitialized)
+        Init();
+
+    // set gl global state
+    glPolygonMode(GL_FRONT, GL_LINE);
+    glPolygonMode(GL_BACK, GL_FILL);
+    glFrontFace(GL_CW);
+    glEnable(GL_CULL_FACE);
+    glCullFace(GL_BACK);
+}
+
+void Scene1_1::Leave()
+{
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+    glFrontFace(GL_CCW);
+    glDisable(GL_CULL_FACE);
+}
+
 void Scene1_1::GLRendering()
 {
     static const float black[] = {0.0f, 0.0f, 0.0f, 0.0f};
@@ -111,18 +129,12 @@ void Scene1_1::GLRendering()
     mShader->setFloat("u_time", (GLfloat)glfwGetTime());
     mShader->setVec2("u_resolution", 800.0f, 600.0f);
 
-    glPolygonMode(GL_FRONT, GL_LINE);
-    glPolygonMode(GL_BACK, GL_FILL);
-
-    glFrontFace(GL_CW);
-    glEnable(GL_CULL_FACE);
-    glCullFace(GL_BACK);
+    glBindVertexArray(VAOs[0]);
 
     // draw points
     // glEnable(GL_POINT_SPRITE); // use gl_PointCoord to see effects
     // glEnable(GL_PROGRAM_POINT_SIZE);
     // glPointSize(64.0f);
-    // glBindVertexArray(VAOs[0]);
     // glDrawArrays(GL_POINTS, 0, 4);
 
     // draw lines
@@ -144,8 +156,6 @@ void Scene1_1::ImguiRendering()
 
 void Scene1_2::Init()
 {
-    if (mInitialized)
-        return;
     std::string vpath("../../../shaders/1-2.vert");
     std::string fpath("../../../shaders/1-2.frag");
     ShaderInfo shaders[3] = {{GL_VERTEX_SHADER, vpath, 0}, {GL_FRAGMENT_SHADER, fpath, 0}, {GL_NONE, "", 0}};
@@ -185,9 +195,6 @@ void Scene1_2::Init()
     glEnableVertexAttribArray(0);
     glEnableVertexAttribArray(1);
 
-    // gl global settings
-    glEnable(GL_CULL_FACE);
-    glEnable(GL_DEPTH_TEST);
     mInitialized = true;
 }
 
@@ -197,6 +204,21 @@ void Scene1_2::Clean()
     glUseProgram(0);
     glDeleteVertexArrays(1, vao);
     glDeleteBuffers(1, vbo);
+}
+
+void Scene1_2::Start()
+{
+    if (!mInitialized)
+        Init();
+    // gl global settings
+    glEnable(GL_CULL_FACE);
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Scene1_2::Leave()
+{
+    glDisable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
 }
 
 void Scene1_2::GLRendering()

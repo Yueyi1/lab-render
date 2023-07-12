@@ -13,6 +13,11 @@ std::string Scene::GetName()
     return mName;
 }
 
+unsigned int Scene::GetTime()
+{
+    return (unsigned int)(glfwGetTime() * 1000.0);
+}
+
 SceneManager::SceneManager()
 {
 }
