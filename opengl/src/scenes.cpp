@@ -221,6 +221,13 @@ void Scene1_2::Leave()
     glDisable(GL_DEPTH_TEST);
 }
 
+void Scene1_2::Resize(int width, int height)
+{
+    DEBUG_PRINTF("SCENE1_2 : RESIZE width = %i height = %i \n", width, height);
+    glViewport(0, 0, width, height);
+    aspect = float(height) / float(width);
+}
+
 void Scene1_2::GLRendering()
 {
     float t        = float(GetTime() & 0x1FFF) / float(0x1FFF);

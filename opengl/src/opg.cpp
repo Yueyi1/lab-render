@@ -10,26 +10,6 @@ Render::~Render()
     cleanup();
 }
 
-void Render::sceneui()
-{
-    static int last_scen_index = mCurrentIndex;
-    if (ImGui::Begin("Scene Switcher"))
-    {
-        if (ImGui::Combo("ScenesList", &mCurrentIndex, mSceneNameList.data(), mSceneNameList.size()))
-        {
-            if (mCurrentIndex != last_scen_index)
-            {
-                mSceneManager.SwitchScene(mCurrentIndex);
-                mScene->Leave();
-                mScene = mSceneManager.GetCurrentScene();
-                mScene->Start();
-                last_scen_index = mCurrentIndex;
-            }
-        }
-    }
-    ImGui::End();
-}
-
 void Render::init()
 {
     DEBUG_PRINTF("enter Render::init()\n");
@@ -131,6 +111,68 @@ void Render::cleanup()
 
     glfwDestroyWindow(mWindow);
     glfwTerminate();
+}
+
+void Render::sceneui()
+{
+    static int last_scen_index = mCurrentIndex;
+    if (ImGui::Begin("Scene Switcher"))
+    {
+        if (ImGui::Combo("ScenesList", &mCurrentIndex, mSceneNameList.data(), mSceneNameList.size()))
+        {
+            if (mCurrentIndex != last_scen_index)
+            {
+                mSceneManager.SwitchScene(mCurrentIndex);
+                mScene->Leave();
+                mScene = mSceneManager.GetCurrentScene();
+                mScene->Start();
+                last_scen_index = mCurrentIndex;
+            }
+        }
+    }
+    ImGui::End();
+}
+
+void Render::window_size_callback(GLFWwindow *window, int width, int height)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->Resize(width, height);
+}
+
+void Render::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->OnKey(key, scancode, action, mods);
+}
+
+void Render::char_callback(GLFWwindow *window, unsigned int codepoint)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->OnChar(codepoint);
+}
+
+void Render::scroll_callback(GLFWwindow *window, double xoffset, double yoffset)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->OnScoll(xoffset, yoffset);
+}
+
+void Render::cursor_callback(GLFWwindow *window, double xposIn, double yposIn)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->OnMouseMove(xposIn, yposIn);
+}
+
+void Render::mouse_button_callback(GLFWwindow *window, int button, int action, int mods)
+{
+    Render *pThis = (Render *)glfwGetWindowUserPointer(window);
+
+    pThis->mScene->OnMouseButton(button, action, mods);
 }
 
 void Render::Start()

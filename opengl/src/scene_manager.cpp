@@ -18,6 +18,47 @@ unsigned int Scene::GetTime()
     return (unsigned int)(glfwGetTime() * 1000.0);
 }
 
+void Scene::Init()
+{
+}
+
+void Scene::Clean()
+{
+}
+
+void Scene::Start()
+{
+}
+
+void Scene::Leave()
+{
+}
+
+void Scene::Resize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void Scene::OnKey(int key, int scancode, int action, int mods)
+{
+}
+
+void Scene::OnChar(unsigned int codepoint)
+{
+}
+
+void Scene::OnScoll(double xoffset, double yoffset)
+{
+}
+
+void Scene::OnMouseMove(double xoffset, double yoffset)
+{
+}
+
+void Scene::OnMouseButton(int button, int action, int mods)
+{
+}
+
 SceneManager::SceneManager()
 {
 }
