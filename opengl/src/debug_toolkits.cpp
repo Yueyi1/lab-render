@@ -2,6 +2,8 @@
 
 #include <iostream>
 
+#include <windows.h>
+
 OPGToolkits::OPGToolkits()
 {
     // Allocate a new console

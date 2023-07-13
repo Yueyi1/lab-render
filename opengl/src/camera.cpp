@@ -1,5 +1,7 @@
 #include "camera.h"
 
+#include <glm/gtc/matrix_transform.hpp>
+
 void Camera::updateCameraVectors()
 {
     glm::vec3 front;

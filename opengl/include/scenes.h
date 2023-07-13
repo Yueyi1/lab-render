@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include <glad/glad.h>
+
 #include "model.h"
 #include "camera.h"
 

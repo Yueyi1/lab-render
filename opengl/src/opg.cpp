@@ -5,6 +5,7 @@
 #include "backends/imgui_impl_opengl3.h"
 
 #include "scenes.h"
+#include "common.h"
 
 Render::Render()
 {

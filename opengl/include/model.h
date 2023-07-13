@@ -1,12 +1,9 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include "common.h"
-
 #include <string>
 #include <vector>
 
-#include <assimp/Importer.hpp>
 #include <assimp/scene.h>
 
 #include "mesh.h"

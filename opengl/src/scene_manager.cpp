@@ -3,6 +3,8 @@
 #include "imgui.h"
 #include <GLFW/glfw3.h>
 
+#include "common.h"
+
 SceneManager::SceneManager()
 {
 }

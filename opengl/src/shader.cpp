@@ -5,6 +5,9 @@
 #include <fstream>
 #include <sstream>
 
+#include <glm/gtc/matrix_transform.hpp>
+#include "common.h"
+
 Shader::Shader(ShaderInfo *sl)
 {
     if (sl == NULL)

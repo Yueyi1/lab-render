@@ -1,6 +1,9 @@
 #include "scenes.h"
 
 #include <GLFW/glfw3.h>
+#include <glm/gtc/matrix_transform.hpp>
+
+#include "common.h"
 
 static inline float random_float()
 {
