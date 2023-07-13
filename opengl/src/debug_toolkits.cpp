@@ -1,5 +1,7 @@
 #include "debug_toolkits.h"
 
+#include <iostream>
+
 OPGToolkits::OPGToolkits()
 {
     // Allocate a new console

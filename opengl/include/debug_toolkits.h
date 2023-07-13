@@ -2,7 +2,6 @@
 #define DEBUG_TOOLKITS_H
 
 #ifdef _WIN32
-#include <iostream>
 #include <windows.h>
 
 #define FOREGROUND_YELLOW FOREGROUND_RED | FOREGROUND_GREEN

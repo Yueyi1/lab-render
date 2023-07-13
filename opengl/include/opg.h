@@ -7,6 +7,8 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
+#include "scene_manager.h"
+
 class Render
 {
 protected:

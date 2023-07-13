@@ -1,5 +1,10 @@
 #include "shader.h"
 
+#include <cstring>
+#include <cstring>
+#include <fstream>
+#include <sstream>
+
 Shader::Shader(ShaderInfo *sl)
 {
     if (sl == NULL)
