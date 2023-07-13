@@ -49,7 +49,7 @@ inline unsigned int TextureFromFile(const char *path, const std::string &directo
     return textureID;
 }
 
-Model::Model(std::string const &path, bool gamma = false) : gammaCorrection(gamma)
+Model::Model(std::string const &path, bool gamma) : gammaCorrection(gamma)
 {
     loadModel(path);
 }

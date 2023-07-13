@@ -18,7 +18,7 @@ public:
     std::string directory;
     bool gammaCorrection;
 
-    Model(std::string const &path, bool gamma);
+    Model(std::string const &path, bool gamma = false);
     void Draw(Shader &shader);
 
 private:

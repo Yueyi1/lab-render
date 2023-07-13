@@ -7,14 +7,26 @@
 #include "scenes.h"
 #include "common.h"
 
+// opg.cpp
+int Render::mWindowWidth  = 1280;
+int Render::mWindowHeight = 720;
+
 Render::Render()
 {
+    static bool counter = false;
+    if (counter)
+    {
+        ERR_PRINT("You are trying to construct a new Render which should be global unique.\n");
+        return;
+    }
     init();
+    counter = true;
 }
 
 Render::~Render()
 {
-    cleanup();
+    if (mInitSuccess)
+        cleanup();
 }
 
 void Render::init()
@@ -28,7 +40,7 @@ void Render::init()
     glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
 #endif
     // Create a GLFW window
-    mWindow = glfwCreateWindow(1280, 720, "OPG Example", NULL, NULL);
+    mWindow = glfwCreateWindow(mWindowWidth, mWindowHeight, "OPG Example", NULL, NULL);
     if (!mWindow)
     {
         glfwTerminate();
@@ -63,8 +75,10 @@ void Render::init()
     // Load Scene
     std::shared_ptr<Scene1_1> scene1_1 = std::make_shared<Scene1_1>("Scene1_1");
     std::shared_ptr<Scene1_2> scene1_2 = std::make_shared<Scene1_2>("Scene1_2");
-    mSceneManager.RegisterScene(scene1_2);
+    std::shared_ptr<Scene1_3> scene1_3 = std::make_shared<Scene1_3>("Scene1_3");
     mSceneManager.RegisterScene(scene1_1);
+    mSceneManager.RegisterScene(scene1_2);
+    mSceneManager.RegisterScene(scene1_3);
     mScene        = mSceneManager.GetCurrentScene();
     int scene_num = mSceneManager.GetSceneList().size();
     for (auto item : mSceneManager.GetSceneList())
@@ -74,6 +88,7 @@ void Render::init()
         mSceneNameList.push_back(tmp);
     }
     mScene->Start();
+
     mInitSuccess = true;
     DEBUG_PRINTF("Render::init() %i \n", mInitSuccess);
 }
@@ -143,8 +158,9 @@ void Render::sceneui()
 void Render::window_size_callback(GLFWwindow *window, int width, int height)
 {
     Render *pThis = (Render *)glfwGetWindowUserPointer(window);
-
-    pThis->mScene->Resize(width, height);
+    mWindowWidth  = width;
+    mWindowHeight = height;
+    pThis->mScene->OnResize(width, height);
 }
 
 void Render::key_callback(GLFWwindow *window, int key, int scancode, int action, int mods)
@@ -190,6 +206,16 @@ void Render::Start()
         return;
     }
     loop();
+}
+
+void Render::LogCurrentSceneInfo()
+{
+}
+
+void Render::GetWindowSize(int &width, int &height)
+{
+    width  = mWindowWidth;
+    height = mWindowHeight;
 }
 
 int main(int argc, char **argv)

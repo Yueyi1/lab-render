@@ -24,7 +24,7 @@ public:
     virtual void Clean();
     virtual void Start();
     virtual void Leave();
-    virtual void Resize(int width, int height);
+    virtual void OnResize(int width, int height);
     virtual void OnKey(int key, int scancode, int action, int mods);
     virtual void OnChar(unsigned int codepoint);
     virtual void OnScoll(double xoffset, double yoffset);
@@ -82,7 +82,7 @@ public:
     void Clean() override;
     void Start() override;
     void Leave() override;
-    void Resize(int width, int height) override;
+    void OnResize(int width, int height) override;
     void GLRendering() override;
     void ImguiRendering() override;
 };
@@ -91,11 +91,16 @@ class Scene1_3 : public Scene
 {
 private:
     // Member variables
-    Camera mCamera;
-    GLuint vao[1];
-    GLuint vbo[1];
-    GLuint ebo[1];
     Shader *mShader;
+    Model *mModel;
+    Camera mCamera;
+
+    float mLastX     = 0;
+    float mLastY     = 0;
+    bool mFirstMouse = true;
+    bool mMouseDown  = false;
+    float mDeltaTime = 0.0f;
+    float mLastFrame = 0.0f;
 
 public:
     Scene1_3(std::string name = "Scene1_3") : Scene(name){};
@@ -109,6 +114,7 @@ public:
     void Start() override;
     void Leave() override;
     void GLRendering() override;
+    void ImguiRendering() override;
 };
 
 #endif // SCENE_H

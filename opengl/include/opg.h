@@ -12,7 +12,10 @@
 class Render
 {
 protected:
+    // window
     GLFWwindow *mWindow;
+    static int mWindowWidth;
+    static int mWindowHeight;
     // scenes
     SceneManager mSceneManager;
     std::shared_ptr<Scene> mScene;
@@ -40,6 +43,7 @@ public:
     void Start();
     void Stop();
     void LogCurrentSceneInfo();
+    static void GetWindowSize(int &width, int &height);
 };
 
 #endif // OPG_H

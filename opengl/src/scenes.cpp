@@ -2,8 +2,10 @@
 
 #include <GLFW/glfw3.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <stb_image.h>
 
 #include "common.h"
+#include "opg.h"
 
 static inline float random_float()
 {
@@ -54,7 +56,7 @@ void Scene::Leave()
 {
 }
 
-void Scene::Resize(int width, int height)
+void Scene::OnResize(int width, int height)
 {
     glViewport(0, 0, width, height);
 }
@@ -285,7 +287,7 @@ void Scene1_2::Leave()
     glDisable(GL_DEPTH_TEST);
 }
 
-void Scene1_2::Resize(int width, int height)
+void Scene1_2::OnResize(int width, int height)
 {
     DEBUG_PRINTF("SCENE1_2 : RESIZE width = %i height = %i \n", width, height);
     glViewport(0, 0, width, height);
@@ -337,5 +339,79 @@ void Scene1_2::GLRendering()
 }
 
 void Scene1_2::ImguiRendering()
+{
+}
+
+void Scene1_3::Init()
+{
+    stbi_set_flip_vertically_on_load(true); // make sure you set this flag before load any models
+
+    std::string vpath("../../../shaders/1-3.vert");
+    std::string fpath("../../../shaders/1-3.frag");
+    ShaderInfo shaders[3] = {{GL_VERTEX_SHADER, vpath, 0}, {GL_FRAGMENT_SHADER, fpath, 0}, {GL_NONE, "", 0}};
+
+    mShader = new Shader(shaders);
+
+    // load model
+    const char *pFile = "../../../models/DragonAttenuation/glTF/DragonAttenuation.gltf";
+    mModel            = new Model(pFile);
+
+    mInitialized = true;
+}
+
+void Scene1_3::Clean()
+{
+    delete mShader;
+    delete mModel;
+    glUseProgram(0);
+}
+
+void Scene1_3::Start()
+{
+    if (!mInitialized)
+        Init();
+    Render::GetWindowSize((int &)mLastX, (int &)mLastY);
+    mLastX /= 2;
+    mLastY /= 2;
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Scene1_3::Leave()
+{
+    glDisable(GL_DEPTH_TEST);
+}
+
+void Scene1_3::GLRendering()
+{
+    float currentFrame = static_cast<float>(glfwGetTime());
+    mDeltaTime         = currentFrame - mLastFrame;
+    mLastFrame         = currentFrame;
+
+    // render
+    // ------
+    glClearColor(0.05f, 0.05f, 0.05f, 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    mShader->use();
+    // view/projection transformations
+    int WindowWidth, WindowHeight;
+    Render::GetWindowSize(WindowWidth, WindowHeight);
+    glm::mat4 projection =
+        glm::perspective(glm::radians(45.0f), (float)WindowWidth / (float)WindowHeight, 0.1f, 100.0f);
+    glm::mat4 view = mCamera.getViewMatrix();
+    mShader->setMat4("projection", projection);
+    mShader->setMat4("view", view);
+
+    // render the loaded model
+    glm::mat4 model = glm::mat4(1.0f);
+    model           = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
+    model           = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+    model           = glm::scale(model, glm::vec3(0.2f));
+    mShader->setMat4("model", model);
+
+    mModel->Draw(*mShader);
+}
+
+void Scene1_3::ImguiRendering()
 {
 }
