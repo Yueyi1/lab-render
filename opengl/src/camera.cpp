@@ -39,7 +39,7 @@ void Camera::moveRight(float distance)
     mPosition += mRight * distance;
 }
 
-void Camera::rotate(float xoffset, float yoffset, float sensitivity = 0.1f)
+void Camera::rotate(float xoffset, float yoffset, float sensitivity)
 {
     xoffset *= sensitivity;
     yoffset *= sensitivity;

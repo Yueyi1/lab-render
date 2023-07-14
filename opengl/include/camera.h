@@ -29,7 +29,7 @@ public:
     void moveBackward(float distance);
     void moveLeft(float distance);
     void moveRight(float distance);
-    void rotate(float xoffset, float yoffset, float sensitivity);
+    void rotate(float xoffset, float yoffset, float sensitivity = 0.1f);
 };
 
 #endif // CAMERA_H

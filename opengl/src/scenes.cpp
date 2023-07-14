@@ -415,3 +415,110 @@ void Scene1_3::GLRendering()
 void Scene1_3::ImguiRendering()
 {
 }
+
+void Scene1_3::OnResize(int width, int height)
+{
+    glViewport(0, 0, width, height);
+}
+
+void Scene1_3::OnKey(int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    {
+        // LogMessage("GLFW EVENT:" + key);
+        switch (key)
+        {
+        case GLFW_KEY_W:
+        {
+            mCamera.moveForward(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_S:
+        {
+            mCamera.moveBackward(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_A:
+        {
+            mCamera.moveLeft(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_D:
+        {
+            mCamera.moveRight(mDeltaTime);
+            break;
+        }
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = true;
+            break;
+        }
+        }
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        // LogMessage("GLFW_RELEASE");
+        switch (key)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = false;
+            break;
+        }
+        }
+    }
+}
+
+void Scene1_3::OnMouseMove(double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (!mMouseDown)
+    {
+        mLastX = xpos;
+        mLastY = ypos;
+        return;
+    }
+
+    if (mFirstMouse)
+    {
+        mLastX      = xpos;
+        mLastY      = ypos;
+        mFirstMouse = false;
+    }
+
+    float xoffset = xpos - mLastX;
+    float yoffset = mLastY - ypos;
+
+    mLastX = xpos;
+    mLastY = ypos;
+
+    mCamera.rotate(xoffset, yoffset);
+}
+
+void Scene1_3::OnMouseButton(int button, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = true;
+            break;
+        }
+        }
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = false;
+            break;
+        }
+        }
+    }
+}

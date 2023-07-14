@@ -28,7 +28,7 @@ public:
     virtual void OnKey(int key, int scancode, int action, int mods);
     virtual void OnChar(unsigned int codepoint);
     virtual void OnScoll(double xoffset, double yoffset);
-    virtual void OnMouseMove(double xoffset, double yoffset);
+    virtual void OnMouseMove(double xposIn, double yposIn);
     virtual void OnMouseButton(int button, int action, int mods);
     virtual void GLRendering()    = 0;
     virtual void ImguiRendering() = 0;
@@ -115,6 +115,10 @@ public:
     void Leave() override;
     void GLRendering() override;
     void ImguiRendering() override;
+    void OnResize(int width, int height) override;
+    void OnKey(int key, int scancode, int action, int mods);
+    void OnMouseMove(double xposIn, double yposIn);
+    void OnMouseButton(int button, int action, int mods);
 };
 
 #endif // SCENE_H
