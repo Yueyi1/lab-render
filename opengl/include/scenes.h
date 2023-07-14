@@ -115,10 +115,44 @@ public:
     void Leave() override;
     void GLRendering() override;
     void ImguiRendering() override;
+    void OnKey(int key, int scancode, int action, int mods) override;
+    void OnMouseMove(double xposIn, double yposIn) override;
+    void OnMouseButton(int button, int action, int mods) override;
+};
+
+class Scene1_4 : public Scene
+{
+private:
+    GLuint vao[1];
+    GLuint vbo[1];
+    GLuint ebo[1];
+    Shader *mShader;
+    Camera mCamera;
+    float aspect     = 600.0 / 800.0;
+    float mLastX     = 0;
+    float mLastY     = 0;
+    bool mFirstMouse = true;
+    bool mMouseDown  = false;
+    float mDeltaTime = 0.0f;
+    float mLastFrame = 0.0f;
+
+public:
+    Scene1_4(std::string name = "Scene1_4") : Scene(name){};
+    ~Scene1_4()
+    {
+        if (mInitialized)
+            Clean();
+    };
+    void Init() override;
+    void Clean() override;
+    void Start() override;
+    void Leave() override;
+    void GLRendering() override;
+    void ImguiRendering() override;
     void OnResize(int width, int height) override;
-    void OnKey(int key, int scancode, int action, int mods);
-    void OnMouseMove(double xposIn, double yposIn);
-    void OnMouseButton(int button, int action, int mods);
+    void OnKey(int key, int scancode, int action, int mods) override;
+    void OnMouseMove(double xposIn, double yposIn) override;
+    void OnMouseButton(int button, int action, int mods) override;
 };
 
 #endif // SCENE_H

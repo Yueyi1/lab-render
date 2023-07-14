@@ -416,11 +416,6 @@ void Scene1_3::ImguiRendering()
 {
 }
 
-void Scene1_3::OnResize(int width, int height)
-{
-    glViewport(0, 0, width, height);
-}
-
 void Scene1_3::OnKey(int key, int scancode, int action, int mods)
 {
     if (action == GLFW_PRESS || action == GLFW_REPEAT)
@@ -498,6 +493,241 @@ void Scene1_3::OnMouseMove(double xposIn, double yposIn)
 }
 
 void Scene1_3::OnMouseButton(int button, int action, int mods)
+{
+    if (action == GLFW_PRESS)
+    {
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = true;
+            break;
+        }
+        }
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        switch (button)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = false;
+            break;
+        }
+        }
+    }
+}
+
+void Scene1_4::Init()
+{
+    std::string vpath("../../../shaders/1-4.vert");
+    std::string fpath("../../../shaders/1-4.frag");
+    ShaderInfo shaders[3] = {{GL_VERTEX_SHADER, vpath, 0}, {GL_FRAGMENT_SHADER, fpath, 0}, {GL_NONE, "", 0}};
+    mShader               = new Shader(shaders);
+    mShader->use();
+
+    // init data
+    // 8 corners of a cube, side length 2, centered on the origin
+    static const GLfloat cube_positions[] = {-1.0f, -1.0f, -1.0f, 1.0f, -1.0f, -1.0f, 1.0f,  1.0f,  -1.0f, 1.0f, -1.0f,
+                                             1.0f,  -1.0f, 1.0f,  1.0f, 1.0f,  1.0f,  -1.0f, -1.0f, 1.0f,  1.0f, -1.0f,
+                                             1.0f,  1.0f,  1.0f,  1.0f, -1.0f, 1.0f,  1.0f,  1.0f,  1.0f,  1.0f};
+
+    // Color for each vertex
+    static const GLfloat cube_colors[] = {1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+                                          1.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f, 1.0f, 1.0f, 1.0f, 0.0f, 1.0f,
+                                          0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.5f, 0.5f, 0.5f, 1.0f};
+
+    // Indices for the triangle strips
+    static const GLushort cube_indices[] = {
+        0,      1, 2, 3, 6, 7, 4, 5, // First strip
+        0xFFFF,                      // <<-- This is the restart index
+        2,      6, 0, 4, 1, 5, 3, 7  // Second strip
+    };
+
+    // Set up the element array buffer
+    glGenBuffers(1, ebo);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0]);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(cube_indices), cube_indices, GL_STATIC_DRAW);
+
+    // Set up the vertex attributes
+    glGenVertexArrays(1, vao);
+    glBindVertexArray(vao[0]);
+
+    glGenBuffers(1, vbo);
+    glBindBuffer(GL_ARRAY_BUFFER, vbo[0]);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(cube_positions) + sizeof(cube_colors), NULL, GL_STATIC_DRAW);
+    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(cube_positions), cube_positions);
+    glBufferSubData(GL_ARRAY_BUFFER, sizeof(cube_positions), sizeof(cube_colors), cube_colors);
+
+    // chang color
+    static glm::vec4 *vertex_positions = (glm::vec4 *)glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+    for (int n = 8; n < 16; n++)
+    {
+        vertex_positions[n] =
+            glm::vec4(random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f, random_float() * 2.0f - 1.0f, 1.0f);
+    }
+    glUnmapBuffer(GL_ARRAY_BUFFER);
+
+    glVertexAttribPointer(0, 4, GL_FLOAT, GL_FALSE, 0, NULL);
+    glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 0, (const GLvoid *)sizeof(cube_positions));
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+}
+
+void Scene1_4::Clean()
+{
+    delete mShader;
+    glUseProgram(0);
+    glDeleteVertexArrays(1, vao);
+    glDeleteBuffers(1, vbo);
+}
+
+void Scene1_4::Start()
+{
+    if (!mInitialized)
+        Init();
+    glEnable(GL_DEPTH_TEST);
+}
+
+void Scene1_4::Leave()
+{
+    glDisable(GL_DEPTH_TEST);
+}
+
+// Define USE_PRIMITIVE_RESTART to 0 to use two separate draw commands
+#define USE_PRIMITIVE_RESTART 0
+
+void Scene1_4::GLRendering()
+{
+    float t        = float(GetTime() & 0x1FFF) / float(0x1FFF);
+    static float q = 0.0f;
+    static const glm::vec3 X(1.0f, 0.0f, 0.0f);
+    static const glm::vec3 Y(0.0f, 1.0f, 0.0f);
+    static const glm::vec3 Z(0.0f, 0.0f, 1.0f);
+
+    // Setup
+    glEnable(GL_CULL_FACE);
+    glDisable(GL_DEPTH_TEST);
+
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    // Activate simple shading program
+    mShader->use();
+
+    // Set up the model and projection matrix
+    glm::mat4 model_matrix = glm::mat4(1.0f);
+    model_matrix           = glm::translate(model_matrix, glm::vec3(0.0f, 0.0f, -5.0f)) *
+                   glm::rotate(model_matrix, glm::radians(t * 360.0f), Y) *
+                   glm::rotate(model_matrix, glm::radians(t * 720.0f), Z);
+    glm::mat4 projection_matrix(glm::frustum(-1.0f, 1.0f, -aspect, aspect, 1.0f, 500.0f));
+
+    mShader->setMat4("model_matrix", model_matrix);
+    mShader->setMat4("projection_matrix", projection_matrix);
+
+    // Set up for a glDrawElements call
+    glBindVertexArray(vao[0]);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo[0]);
+
+#if USE_PRIMITIVE_RESTART
+    // When primitive restart is on, we can call one draw command
+    glEnable(GL_PRIMITIVE_RESTART);
+    glPrimitiveRestartIndex(0xFFFF);
+    glDrawElements(GL_TRIANGLE_STRIP, 17, GL_UNSIGNED_SHORT, NULL);
+#else
+    // Without primitive restart, we need to call two draw commands
+    glDrawElements(GL_TRIANGLE_STRIP, 8, GL_UNSIGNED_SHORT, NULL);
+    glDrawElements(GL_TRIANGLE_STRIP, 8, GL_UNSIGNED_SHORT, (const GLvoid *)(9 * sizeof(GLushort)));
+#endif
+}
+
+void Scene1_4::ImguiRendering()
+{
+}
+
+void Scene1_4::OnResize(int width, int height)
+{
+    DEBUG_PRINTF("SCENE1_2 : RESIZE width = %i height = %i \n", width, height);
+    glViewport(0, 0, width, height);
+    aspect = float(height) / float(width);
+}
+
+void Scene1_4::OnKey(int key, int scancode, int action, int mods)
+{
+    if (action == GLFW_PRESS || action == GLFW_REPEAT)
+    {
+        // LogMessage("GLFW EVENT:" + key);
+        switch (key)
+        {
+        case GLFW_KEY_W:
+        {
+            mCamera.moveForward(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_S:
+        {
+            mCamera.moveBackward(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_A:
+        {
+            mCamera.moveLeft(mDeltaTime);
+            break;
+        }
+        case GLFW_KEY_D:
+        {
+            mCamera.moveRight(mDeltaTime);
+            break;
+        }
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = true;
+            break;
+        }
+        }
+    }
+    else if (action == GLFW_RELEASE)
+    {
+        // LogMessage("GLFW_RELEASE");
+        switch (key)
+        {
+        case GLFW_MOUSE_BUTTON_1:
+        {
+            mMouseDown = false;
+            break;
+        }
+        }
+    }
+}
+
+void Scene1_4::OnMouseMove(double xposIn, double yposIn)
+{
+    float xpos = static_cast<float>(xposIn);
+    float ypos = static_cast<float>(yposIn);
+
+    if (!mMouseDown)
+    {
+        mLastX = xpos;
+        mLastY = ypos;
+        return;
+    }
+
+    if (mFirstMouse)
+    {
+        mLastX      = xpos;
+        mLastY      = ypos;
+        mFirstMouse = false;
+    }
+
+    float xoffset = xpos - mLastX;
+    float yoffset = mLastY - ypos;
+
+    mLastX = xpos;
+    mLastY = ypos;
+
+    mCamera.rotate(xoffset, yoffset);
+}
+
+void Scene1_4::OnMouseButton(int button, int action, int mods)
 {
     if (action == GLFW_PRESS)
     {
