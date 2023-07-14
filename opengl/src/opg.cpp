@@ -139,6 +139,7 @@ void Render::cleanup()
 
 void Render::sceneui()
 {
+    // scenes switch
     static int last_scen_index = mCurrentIndex;
     if (ImGui::Begin("Scene Switcher"))
     {
@@ -151,6 +152,48 @@ void Render::sceneui()
                 mScene = mSceneManager.GetCurrentScene();
                 mScene->Start();
                 last_scen_index = mCurrentIndex;
+            }
+        }
+    }
+    ImGui::End();
+    // global gl settings
+    if (ImGui::Begin("GL Global Settings"))
+    {
+        if (ImGui::Checkbox("Wireframe Mode", &mWireframeEnabled))
+        {
+            if (mWireframeEnabled)
+            {
+                glEnable(GL_POLYGON_OFFSET_LINE);
+                glPolygonOffset(-1.0f, -1.0f);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+            }
+            else
+            {
+                glDisable(GL_POLYGON_OFFSET_LINE);
+                glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+            }
+        }
+        if (ImGui::Checkbox("Depth Test", &mDepthTestEnabled))
+        {
+            if (mDepthTestEnabled)
+            {
+                glEnable(GL_DEPTH_TEST);
+                glDepthFunc(GL_LESS);
+            }
+            else
+            {
+                glDisable(GL_DEPTH_TEST);
+            }
+        }
+        if (ImGui::Checkbox("Face Cull", &mCullFaceEnabled))
+        {
+            if (mCullFaceEnabled)
+            {
+                glEnable(GL_CULL_FACE);
+            }
+            else
+            {
+                glDisable(GL_CULL_FACE);
             }
         }
     }

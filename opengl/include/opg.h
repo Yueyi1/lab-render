@@ -23,6 +23,10 @@ protected:
     int mCurrentIndex = 0;
     // flag
     bool mInitSuccess;
+    // imgui variables
+    bool mWireframeEnabled = false;
+    bool mDepthTestEnabled = true;
+    bool mCullFaceEnabled = true;
 
 private:
     void init();
