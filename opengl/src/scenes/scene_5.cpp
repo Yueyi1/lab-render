@@ -1,11 +1,96 @@
+#include "opg.h"
 #include "scenes.h"
+#include "common.h"
 
 #include <stb_image.h>
 #include <glm/gtc/matrix_transform.hpp>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
+#define INVALID_MATERIAL 0xFFFFFFFF
 
-#include "opg.h"
+class MyMesh
+{
+protected:
+    struct BasicMeshEntry {
+        BasicMeshEntry()
+        {
+            NumIndices = 0;
+            BaseVertex = 0;
+            BaseIndex = 0;
+            MaterialIndex = INVALID_MATERIAL;
+        }
 
+        glm::uint NumIndices;
+        glm::uint BaseVertex;
+        glm::uint BaseIndex;
+        glm::uint MaterialIndex;
+    };
+
+    std::vector<BasicMeshEntry> m_Meshes;
+
+    const aiScene* m_pScene;
+
+    glm::mat4 m_GlobalInverseTransform;
+
+    std::vector<glm::uint> m_Indices;
+
+    enum BUFFER_TYPE {
+        INDEX_BUFFER = 0,
+        VERTEX_BUFFER = 1,
+        WVP_MAT_BUFFER = 2,  // required only for instancing
+        WORLD_MAT_BUFFER = 3,  // required only for instancing
+        NUM_BUFFERS = 4
+    };
+
+    GLuint m_VAO = 0;
+
+    GLuint m_Buffers[NUM_BUFFERS] = { 0 };
+private:
+    std::vector<Material> m_Materials;
+
+    // Temporary space for vertex stuff before we load them into the GPU
+    std::vector<Vertex> m_Vertices;
+
+    Assimp::Importer m_Importer;
+
+    bool m_isPBR = false;
+public:
+    MyMesh() {}
+    ~MyMesh() {}
+    bool LoadMesh(const std::string& path)
+    {
+        Assimp::Importer importer;
+        m_pScene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals |
+            aiProcess_FlipUVs | aiProcess_JoinIdenticalVertices);
+        if (!m_pScene || m_pScene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !m_pScene->mRootNode) // if is Not Zero
+        {
+            ERR_PRINT("ERROR::ASSIMP:: %s\n", importer.GetErrorString());
+            return;
+        }
+
+        m_Meshes.resize(m_pScene->mNumMeshes);
+        m_Materials.resize(m_pScene->mNumMaterials);
+
+        unsigned int NumVertices = 0;
+        unsigned int NumIndices = 0;
+
+        CountVerticesAndIndices(m_pScene, NumVertices, NumIndices);
+
+        ReserveSpace(NumVertices, NumIndices);
+
+        InitAllMeshes(pScene);
+
+        if (!InitMaterials(pScene, Filename)) {
+            return false;
+        }
+
+        PopulateBuffers();
+
+    }
+
+};
 
 class Scene_5 : public Scene
 {
