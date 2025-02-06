@@ -4,8 +4,9 @@
 #include "backends/imgui_impl_glfw.h"
 #include "backends/imgui_impl_opengl3.h"
 
-#include "scenes.h"
 #include "common.h"
+#include "scenes/scenes.h"
+#include <scenes/scene_5.cpp>
 
 // opg.cpp
 int Render::mWindowWidth  = 1280;
@@ -77,10 +78,12 @@ void Render::init()
     std::shared_ptr<Scene1_2> scene1_2 = std::make_shared<Scene1_2>("Scene1_2");
     std::shared_ptr<Scene1_3> scene1_3 = std::make_shared<Scene1_3>("Scene1_3");
     std::shared_ptr<Scene1_4> scene1_4 = std::make_shared<Scene1_4>("Scene1_4");
+    std::shared_ptr<Scene_5> scene_5 = std::make_shared<Scene_5>("Scene_5");
     mSceneManager.RegisterScene(scene1_1);
     mSceneManager.RegisterScene(scene1_2);
     mSceneManager.RegisterScene(scene1_3);
     mSceneManager.RegisterScene(scene1_4);
+    mSceneManager.RegisterScene(scene_5);
     mScene        = mSceneManager.GetCurrentScene();
     int scene_num = mSceneManager.GetSceneList().size();
     for (auto item : mSceneManager.GetSceneList())

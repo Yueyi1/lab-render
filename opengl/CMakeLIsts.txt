@@ -16,6 +16,17 @@ endif()
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+# run dir
+set(RUN_DIR ${PROJECT_SOURCE_DIR}/bin)
+# add src to executable
+if(MSVC)
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
+endif()
+
+if (CMAKE_BUILD_TYPE MATCHES "Debug")
+    add_compile_definitions(_DEBUG)
+endif()
+
 # for multi-config builds (e.g. msvc)
 foreach( OUTPUTCONFIG ${CMAKE_CONFIGURATION_TYPES} )
     string( TOUPPER ${OUTPUTCONFIG} OUTPUTCONFIG )
@@ -51,7 +62,6 @@ add_subdirectory(external/glm)
 
 #----------------------------------------------------INCLUDE FILES PATH----------------------------------------------------------
 #include
-include_directories(${CMAKE_SOURCE_DIR}/include)
 include_directories(external/glfw/include)
 include_directories(external/assimp/include)
 include_directories(external/imgui)
@@ -65,25 +75,56 @@ link_directories(${CMAKE_BINARY_DIR}/lib)
 set(LIBS ${OPENGL_LIBRARIES} optimized glfw3 assimp imgui debug glfw3_d assimp_d imgui_d)
 
 #----------------------------------------------------COMPILE EXECUTABLE----------------------------------------------------------
-# header
-set(COMMON_LIB_SRC external/glad/src/glad.c)
+# create filter in solution explorer
+function(assign_source_group)
+    foreach(_source IN ITEMS ${ARGN})
+        if (IS_ABSOLUTE "${_source}")
+            file(RELATIVE_PATH _source_rel "${CMAKE_CURRENT_SOURCE_DIR}" "${_source}")
+        else()
+            set(_source_rel "${_source}")
+        endif()
+        get_filename_component(_source_path "${_source_rel}" PATH)
+        string(REPLACE "/" "\\" _source_path_msvc "${_source_path}")
+        source_group("${_source_path_msvc}" FILES "${_source}")
+    endforeach()
+endfunction(assign_source_group)
 
-# run dir
-set(RUN_DIR ${PROJECT_SOURCE_DIR}/bin)
+set(
+    source_list 
+    "external/glad/src/glad.c"
+    "src/camera.h"
+    "src/camera.cpp"
+    "src/common.h"
+    "src/stb_image.h"
+    "src/stb_image.cpp"
+    "src/debug_toolkits.h"
+    "src/debug_toolkits.cpp"    
+    "src/mesh.h"
+    "src/mesh.cpp"
+    "src/model.h"
+    "src/model.cpp"
+    "src/opg.h"
+    "src/opg.cpp"
+    "src/shader.h"
+    "src/shader.cpp"
+    "src/scene_manager.h"
+    "src/scene_manager.cpp"
+    "src/shader.cpp"
+    "src/scenes/scenes.h"
+    "src/scenes/scenes.cpp"
+    "src/scenes/scene_5.cpp"
+)
 
-# add src to executable
-if(MSVC)
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /SUBSYSTEM:CONSOLE")
-endif()
+assign_source_group(${source_list})
 
-if (CMAKE_BUILD_TYPE MATCHES "Debug")
-    add_compile_definitions(_DEBUG)
-endif()
+include_directories("src")
 
-# compile the Integrated project
-file(GLOB_RECURSE MY_APP_SRC "${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp")
-add_executable(opengl-render WIN32 ${MY_APP_SRC} ${COMMON_LIB_SRC})
+add_executable(opengl-render WIN32 ${source_list})
+
+target_compile_features(opengl-render PRIVATE cxx_std_17)
+
 set_property(TARGET opengl-render PROPERTY DEBUG_POSTFIX _d)
+
 if(MSVC)
     set_property(TARGET opengl-render PROPERTY VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}/bin")
 endif()
