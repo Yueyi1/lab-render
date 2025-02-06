@@ -354,6 +354,7 @@ void Scene1_3::Init()
 
     // load model
     const char *pFile = "../../../models/DragonAttenuation/glTF/DragonAttenuation.gltf";
+    //const char *pFile = "../../../models/backpack/backpack.obj";
     mModel            = new Model(pFile);
 
     mInitialized = true;
@@ -406,7 +407,7 @@ void Scene1_3::GLRendering()
     glm::mat4 model = glm::mat4(1.0f);
     model           = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f));
     model           = glm::rotate(model, glm::radians(90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-    model           = glm::scale(model, glm::vec3(0.2f));
+    model           = glm::scale(model, glm::vec3(0.1f));
     mShader->setMat4("model", model);
 
     mModel->Draw(*mShader);
@@ -425,22 +426,22 @@ void Scene1_3::OnKey(int key, int scancode, int action, int mods)
         {
         case GLFW_KEY_W:
         {
-            mCamera.moveForward(mDeltaTime);
+            mCamera.moveForward(mDeltaTime * 10);
             break;
         }
         case GLFW_KEY_S:
         {
-            mCamera.moveBackward(mDeltaTime);
+            mCamera.moveBackward(mDeltaTime * 10);
             break;
         }
         case GLFW_KEY_A:
         {
-            mCamera.moveLeft(mDeltaTime);
+            mCamera.moveLeft(mDeltaTime * 10);
             break;
         }
         case GLFW_KEY_D:
         {
-            mCamera.moveRight(mDeltaTime);
+            mCamera.moveRight(mDeltaTime * 10);
             break;
         }
         case GLFW_MOUSE_BUTTON_1:
