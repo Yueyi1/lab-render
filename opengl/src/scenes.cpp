@@ -353,8 +353,9 @@ void Scene1_3::Init()
     mShader = new Shader(shaders);
 
     // load model
-    const char *pFile = "../../../models/DragonAttenuation/glTF/DragonAttenuation.gltf";
-    //const char *pFile = "../../../models/backpack/backpack.obj";
+    //const char *pFile = "../../../models/DragonAttenuation/glTF/DragonAttenuation.gltf";
+    //const char *pFile = "../../../models/buster_drone/scene.gltf";
+    const char *pFile = "../../../models/backpack/backpack.obj";
     mModel            = new Model(pFile);
 
     mInitialized = true;
