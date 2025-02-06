@@ -5,6 +5,8 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -1280,13 +1282,18 @@ ASSIMP_API void aiQuaternionInterpolate(
 #   define STBI_ONLY_PNG
 #endif
 
-// Ensure all symbols are linked correctly
 #if ASSIMP_NEEDS_STB_IMAGE
-    // Share stb_image's PNG loader with other importers/exporters instead of bringing our own copy.
-#   define STBI_ONLY_PNG
-#   ifdef ASSIMP_USE_STB_IMAGE_STATIC
-#       define STB_IMAGE_STATIC
+
+#   if _MSC_VER // "unreferenced function has been removed" (SSE2 detection routine in x64 builds)
+#       pragma warning(push)
+#       pragma warning(disable: 4505)
 #   endif
+
 #   define STB_IMAGE_IMPLEMENTATION
-#   include "Common/StbCommon.h"
+#   include "stb/stb_image.h"
+
+#   if _MSC_VER
+#       pragma warning(pop)
+#   endif
+
 #endif

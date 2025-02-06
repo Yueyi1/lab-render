@@ -151,46 +151,45 @@ namespace Grammar {
     }
 
     static TokenType matchTokenType(const char *tokenType) {
-        const size_t len = std::strlen(tokenType);
-        if (0 == strncmp(MetricType, tokenType, len)) {
+        if (MetricType == tokenType) {
             return MetricToken;
-        } else if (0 == strncmp(NameType, tokenType, len)) {
+        } else if (NameType == tokenType) {
             return NameToken;
-        } else if (0 == strncmp(ObjectRefType, tokenType, len)) {
+        } else if (ObjectRefType == tokenType) {
             return ObjectRefToken;
-        } else if (0 == strncmp(MaterialRefType, tokenType, len)) {
+        } else if (MaterialRefType == tokenType) {
             return MaterialRefToken;
-        } else if (0 == strncmp(MetricKeyType, tokenType, len)) {
+        } else if (MetricKeyType == tokenType) {
             return MetricKeyToken;
-        } else if (0 == strncmp(GeometryNodeType, tokenType, len)) {
+        } else if (GeometryNodeType == tokenType) {
             return GeometryNodeToken;
-        } else if (0 == strncmp(CameraNodeType, tokenType, len)) {
+        } else if (CameraNodeType == tokenType) {
             return CameraNodeToken;
-        } else if (0 == strncmp(LightNodeType, tokenType, len)) {
+        } else if (LightNodeType == tokenType) {
             return LightNodeToken;
-        } else if (0 == strncmp(GeometryObjectType, tokenType, len)) {
+        } else if (GeometryObjectType == tokenType) {
             return GeometryObjectToken;
-        } else if (0 == strncmp(CameraObjectType, tokenType, len)) {
+        } else if (CameraObjectType == tokenType) {
             return CameraObjectToken;
-        } else if (0 == strncmp(LightObjectType, tokenType, len)) {
+        } else if (LightObjectType == tokenType) {
             return LightObjectToken;
-        } else if (0 == strncmp(TransformType, tokenType, len)) {
+        } else if (TransformType == tokenType) {
             return TransformToken;
-        } else if (0 == strncmp(MeshType, tokenType, len)) {
+        } else if (MeshType == tokenType) {
             return MeshToken;
-        } else if (0 == strncmp(VertexArrayType, tokenType, len)) {
+        } else if (VertexArrayType == tokenType) {
             return VertexArrayToken;
-        } else if (0 == strncmp(IndexArrayType, tokenType, len)) {
+        } else if (IndexArrayType == tokenType) {
             return IndexArrayToken;
-        } else if (0 == strncmp(MaterialType, tokenType, len)) {
+        } else if (MaterialType == tokenType) {
             return MaterialToken;
-        } else if (0 == strncmp(ColorType, tokenType, len)) {
+        } else if (ColorType == tokenType) {
             return ColorToken;
-        } else if (0 == strncmp(ParamType, tokenType, len)) {
+        } else if (ParamType == tokenType) {
             return ParamToken;
-        } else if (0 == strncmp(TextureType, tokenType, len)) {
+        } else if (TextureType == tokenType) {
             return TextureToken;
-        } else if (0 == strncmp(AttenType, tokenType, len)) {
+        } else if (AttenType == tokenType) {
             return AttenToken;
         }
 
@@ -258,6 +257,11 @@ OpenGEXImporter::RefInfo::RefInfo(aiNode *node, Type type, std::vector<std::stri
 }
 
 //------------------------------------------------------------------------------------------------
+OpenGEXImporter::RefInfo::~RefInfo() {
+    // empty
+}
+
+//------------------------------------------------------------------------------------------------
 OpenGEXImporter::OpenGEXImporter() :
         m_root(nullptr),
         m_nodeChildMap(),
@@ -279,6 +283,10 @@ OpenGEXImporter::OpenGEXImporter() :
         m_nodeStack(),
         m_unresolvedRefStack() {
     // empty
+}
+
+//------------------------------------------------------------------------------------------------
+OpenGEXImporter::~OpenGEXImporter() {
 }
 
 //------------------------------------------------------------------------------------------------

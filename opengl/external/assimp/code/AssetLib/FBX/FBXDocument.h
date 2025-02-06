@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -88,7 +89,7 @@ class LazyObject {
 public:
     LazyObject(uint64_t id, const Element& element, const Document& doc);
 
-    ~LazyObject() = default;
+    ~LazyObject();
 
     const Object* Get(bool dieOnError = false);
 
@@ -138,7 +139,7 @@ class Object {
 public:
     Object(uint64_t id, const Element& element, const std::string& name);
 
-    virtual ~Object() = default;
+    virtual ~Object();
 
     const Element& SourceElement() const {
         return element;
@@ -164,7 +165,7 @@ class NodeAttribute : public Object {
 public:
     NodeAttribute(uint64_t id, const Element& element, const Document& doc, const std::string& name);
 
-    virtual ~NodeAttribute() = default;
+    virtual ~NodeAttribute();
 
     const PropertyTable& Props() const {
         ai_assert(props.get());
@@ -180,7 +181,7 @@ class CameraSwitcher : public NodeAttribute {
 public:
     CameraSwitcher(uint64_t id, const Element& element, const Document& doc, const std::string& name);
 
-    virtual ~CameraSwitcher() = default;
+    virtual ~CameraSwitcher();
 
     int CameraID() const {
         return cameraId;
@@ -225,7 +226,7 @@ class Camera : public NodeAttribute {
 public:
     Camera(uint64_t id, const Element& element, const Document& doc, const std::string& name);
 
-    virtual  ~Camera() = default;
+    virtual  ~Camera();
 
     fbx_simple_property(Position, aiVector3D, aiVector3D(0,0,0))
     fbx_simple_property(UpVector, aiVector3D, aiVector3D(0,1,0))
@@ -250,23 +251,24 @@ public:
 class Null : public NodeAttribute {
 public:
     Null(uint64_t id, const Element& element, const Document& doc, const std::string& name);
-    virtual ~Null() = default;
+    virtual ~Null();
 };
 
 /** DOM base class for FBX limb node markers attached to a node */
 class LimbNode : public NodeAttribute {
 public:
     LimbNode(uint64_t id, const Element& element, const Document& doc, const std::string& name);
-    virtual ~LimbNode() = default;
+    virtual ~LimbNode();
 };
 
 /** DOM base class for FBX lights attached to a node */
 class Light : public NodeAttribute {
 public:
     Light(uint64_t id, const Element& element, const Document& doc, const std::string& name);
-    virtual ~Light() = default;
+    virtual ~Light();
 
-    enum Type {
+    enum Type
+    {
         Type_Point,
         Type_Directional,
         Type_Spot,
@@ -276,7 +278,8 @@ public:
         Type_MAX // end-of-enum sentinel
     };
 
-    enum Decay {
+    enum Decay
+    {
         Decay_None,
         Decay_Linear,
         Decay_Quadratic,
@@ -344,7 +347,7 @@ public:
 
     Model(uint64_t id, const Element& element, const Document& doc, const std::string& name);
 
-    virtual ~Model() = default;
+    virtual ~Model();
 
     fbx_simple_property(QuaternionInterpolate, int, 0)
 
@@ -575,27 +578,31 @@ public:
         BlendMode_BlendModeCount
     };
 
-    const Texture* getTexture(int index=0) const {
+    const Texture* getTexture(int index=0) const
+    {
 		return textures[index];
+
     }
 	int textureCount() const {
 		return static_cast<int>(textures.size());
 	}
-    BlendMode GetBlendMode() const {
+    BlendMode GetBlendMode() const
+    {
         return blendMode;
     }
-    float Alpha() {
+    float Alpha()
+    {
         return alpha;
     }
-
 private:
 	std::vector<const Texture*> textures;
     BlendMode blendMode;
     float alpha;
 };
 
-using TextureMap = std::fbx_unordered_map<std::string, const Texture*>;
-using LayeredTextureMap = std::fbx_unordered_map<std::string, const LayeredTexture*>;
+typedef std::fbx_unordered_map<std::string, const Texture*> TextureMap;
+typedef std::fbx_unordered_map<std::string, const LayeredTexture*> LayeredTextureMap;
+
 
 /** DOM class for generic FBX videos */
 class Video : public Object {
@@ -683,14 +690,14 @@ private:
     LayeredTextureMap layeredTextures;
 };
 
-using KeyTimeList = std::vector<int64_t>;
-using KeyValueList = std::vector<float>;
+typedef std::vector<int64_t> KeyTimeList;
+typedef std::vector<float> KeyValueList;
 
 /** Represents a FBX animation curve (i.e. a 1-dimensional set of keyframes and values therefore) */
 class AnimationCurve : public Object {
 public:
     AnimationCurve(uint64_t id, const Element& element, const std::string& name, const Document& doc);
-    virtual ~AnimationCurve() = default;
+    virtual ~AnimationCurve();
 
     /** get list of keyframe positions (time).
      *  Invariant: |GetKeys()| > 0 */
@@ -720,7 +727,7 @@ private:
 };
 
 // property-name -> animation curve
-using AnimationCurveMap = std::map<std::string, const AnimationCurve*>;
+typedef std::map<std::string, const AnimationCurve*> AnimationCurveMap;
 
 /** Represents a FBX animation curve (i.e. a mapping from single animation curves to nodes) */
 class AnimationCurveNode : public Object {
@@ -731,7 +738,7 @@ public:
     AnimationCurveNode(uint64_t id, const Element& element, const std::string& name, const Document& doc,
             const char *const *target_prop_whitelist = nullptr, size_t whitelist_size = 0);
 
-    virtual ~AnimationCurveNode() = default;
+    virtual ~AnimationCurveNode();
 
     const PropertyTable& Props() const {
         ai_assert(props.get());
@@ -770,13 +777,13 @@ private:
     const Document& doc;
 };
 
-using AnimationCurveNodeList = std::vector<const AnimationCurveNode*>;
+typedef std::vector<const AnimationCurveNode*> AnimationCurveNodeList;
 
 /** Represents a FBX animation layer (i.e. a list of node animations) */
 class AnimationLayer : public Object {
 public:
     AnimationLayer(uint64_t id, const Element& element, const std::string& name, const Document& doc);
-    virtual ~AnimationLayer() = default;
+    virtual ~AnimationLayer();
 
     const PropertyTable& Props() const {
         ai_assert(props.get());
@@ -793,13 +800,13 @@ private:
     const Document& doc;
 };
 
-using AnimationLayerList = std::vector<const AnimationLayer*>;
+typedef std::vector<const AnimationLayer*> AnimationLayerList;
 
 /** Represents a FBX animation stack (i.e. a list of animation layers) */
 class AnimationStack : public Object {
 public:
     AnimationStack(uint64_t id, const Element& element, const std::string& name, const Document& doc);
-    virtual ~AnimationStack() = default;
+    virtual ~AnimationStack();
 
     fbx_simple_property(LocalStart, int64_t, 0L)
     fbx_simple_property(LocalStop, int64_t, 0L)
@@ -836,8 +843,8 @@ private:
     std::shared_ptr<const PropertyTable> props;
 };
 
-using WeightArray = std::vector<float>;
-using WeightIndexArray = std::vector<unsigned int>;
+typedef std::vector<float> WeightArray;
+typedef std::vector<unsigned int> WeightIndexArray;
 
 
 /** DOM class for BlendShapeChannel deformers */
@@ -949,7 +956,7 @@ class Connection {
 public:
     Connection(uint64_t insertionOrder,  uint64_t src, uint64_t dest, const std::string& prop, const Document& doc);
 
-    ~Connection() = default;
+    ~Connection();
 
     // note: a connection ensures that the source and dest objects exist, but
     // not that they have DOM representations, so the return value of one of
@@ -1004,9 +1011,10 @@ public:
 // during their entire lifetime (Document). FBX files have
 // up to many thousands of objects (most of which we never use),
 // so the memory overhead for them should be kept at a minimum.
-using ObjectMap = std::fbx_unordered_map<uint64_t, LazyObject*> ;
-using PropertyTemplateMap = std::fbx_unordered_map<std::string, std::shared_ptr<const PropertyTable> > ;
-using ConnectionMap = std::fbx_unordered_multimap<uint64_t, const Connection*>;
+typedef std::fbx_unordered_map<uint64_t, LazyObject*> ObjectMap;
+typedef std::fbx_unordered_map<std::string, std::shared_ptr<const PropertyTable> > PropertyTemplateMap;
+
+typedef std::fbx_unordered_multimap<uint64_t, const Connection*> ConnectionMap;
 
 /** DOM class for global document settings, a single instance per document can
  *  be accessed via Document.Globals(). */
@@ -1014,7 +1022,7 @@ class FileGlobalSettings {
 public:
     FileGlobalSettings(const Document& doc, std::shared_ptr<const PropertyTable> props);
 
-    ~FileGlobalSettings() = default;
+    ~FileGlobalSettings();
 
     const PropertyTable& Props() const {
         ai_assert(props.get());

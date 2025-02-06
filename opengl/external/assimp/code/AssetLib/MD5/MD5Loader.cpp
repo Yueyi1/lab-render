@@ -94,7 +94,9 @@ MD5Importer::MD5Importer() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-MD5Importer::~MD5Importer() = default;
+MD5Importer::~MD5Importer() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

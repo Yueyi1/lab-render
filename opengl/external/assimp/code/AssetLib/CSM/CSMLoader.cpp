@@ -85,7 +85,8 @@ CSMImporter::CSMImporter()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-CSMImporter::~CSMImporter() = default;
+CSMImporter::~CSMImporter()
+{}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

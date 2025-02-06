@@ -56,7 +56,9 @@ SplitLargeMeshesProcess_Triangle::SplitLargeMeshesProcess_Triangle() {
 }
 
 // ------------------------------------------------------------------------------------------------
-SplitLargeMeshesProcess_Triangle::~SplitLargeMeshesProcess_Triangle() = default;
+SplitLargeMeshesProcess_Triangle::~SplitLargeMeshesProcess_Triangle() {
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -314,13 +316,13 @@ void SplitLargeMeshesProcess_Triangle::SplitMesh(
             }
 
             // add the newly created mesh to the list
-            avList.emplace_back(pcMesh,a);
+            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh,a));
         }
 
         // now delete the old mesh data
         delete pMesh;
     } else {
-        avList.emplace_back(pMesh,a);
+        avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh,a));
     }
 }
 
@@ -330,7 +332,9 @@ SplitLargeMeshesProcess_Vertex::SplitLargeMeshesProcess_Vertex() {
 }
 
 // ------------------------------------------------------------------------------------------------
-SplitLargeMeshesProcess_Vertex::~SplitLargeMeshesProcess_Vertex() = default;
+SplitLargeMeshesProcess_Vertex::~SplitLargeMeshesProcess_Vertex() {
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -480,7 +484,7 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
                     break;
                 }
 
-                vFaces.emplace_back();
+                vFaces.push_back(aiFace());
                 aiFace& rFace = vFaces.back();
 
                 // setup face type and number of indices
@@ -601,7 +605,7 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
             }
 
             // add the newly created mesh to the list
-            avList.emplace_back(pcMesh,a);
+            avList.push_back(std::pair<aiMesh*, unsigned int>(pcMesh,a));
 
             if (iBase == pMesh->mNumFaces) {
                 // have all faces ... finish the outer loop, too
@@ -616,5 +620,5 @@ void SplitLargeMeshesProcess_Vertex::SplitMesh(
         delete pMesh;
         return;
     }
-    avList.emplace_back(pMesh,a);
+    avList.push_back(std::pair<aiMesh*, unsigned int>(pMesh,a));
 }

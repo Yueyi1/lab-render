@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2020, assimp team
+
 
 All rights reserved.
 
@@ -58,6 +59,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #    pragma warning(disable : 4127 4456 4245 4512 )
 #endif // _MSC_VER
 
+//
 #if _MSC_VER > 1500 || (defined __GNUC___)
 #    define ASSIMP_STEP_USE_UNORDERED_MULTIMAP
 #else
@@ -97,9 +99,13 @@ namespace EXPRESS {
 class DataType;
 class UNSET; /*: public DataType */
 class ISDERIVED; /*: public DataType */
+//  class REAL;         /*: public DataType */
 class ENUM; /*: public DataType */
+//  class STRING;       /*: public DataType */
+//  class INTEGER;      /*: public DataType */
 class ENTITY; /*: public DataType */
 class LIST; /*: public DataType */
+//  class SELECT;       /*: public DataType */
 
 // a conversion schema is not exactly an EXPRESS schema, rather it
 // is a list of pointers to conversion functions to build up the
@@ -121,8 +127,7 @@ namespace STEP {
 
 // -------------------------------------------------------------------------------
 /** Exception class used by the STEP loading & parsing code. It is typically
- *  coupled with a line number. 
- */
+     *  coupled with a line number. */
 // -------------------------------------------------------------------------------
 struct SyntaxError : DeadlyImportError {
     enum : uint64_t {
@@ -134,9 +139,8 @@ struct SyntaxError : DeadlyImportError {
 
 // -------------------------------------------------------------------------------
 /** Exception class used by the STEP loading & parsing code when a type
- *  error (i.e. an entity expects a string but receives a bool) occurs.
- *  It is typically coupled with both an entity id and a line number.
- */
+     *  error (i.e. an entity expects a string but receives a bool) occurs.
+     *  It is typically coupled with both an entity id and a line number.*/
 // -------------------------------------------------------------------------------
 struct TypeError : DeadlyImportError {
     enum : uint64_t {
@@ -163,8 +167,10 @@ public:
     typedef std::shared_ptr<const DataType> Out;
 
 public:
-    virtual ~DataType() = default;
+    virtual ~DataType() {
+    }
 
+public:
     template <typename T>
     const T &To() const {
         return dynamic_cast<const T &>(*this);
@@ -200,14 +206,16 @@ public:
 
 public:
     /** parse a variable from a string and set 'inout' to the character
-     *  behind the last consumed character. An optional schema enables,
-     *  if specified, automatic conversion of custom data types.
-     *
-     *  @throw SyntaxError
-     */
+             *  behind the last consumed character. An optional schema enables,
+             *  if specified, automatic conversion of custom data types.
+             *
+             *  @throw SyntaxError
+             */
     static std::shared_ptr<const EXPRESS::DataType> Parse(const char *&inout,
             uint64_t line = SyntaxError::LINE_NOT_SPECIFIED,
             const EXPRESS::ConversionSchema *schema = NULL);
+
+public:
 };
 
 typedef DataType SELECT;
@@ -230,8 +238,7 @@ private:
 };
 
 // -------------------------------------------------------------------------------
-/** Shared implementation for some of the primitive data type, i.e. int, float 
- */
+/** Shared implementation for some of the primitive data type, i.e. int, float */
 // -------------------------------------------------------------------------------
 template <typename T>
 class PrimitiveDataType : public DataType {
@@ -240,7 +247,7 @@ public:
     // expose this data type to the user.
     typedef T Out;
 
-    PrimitiveDataType() = default;
+    PrimitiveDataType() {}
     PrimitiveDataType(const T &val) :
             val(val) {}
 
@@ -273,18 +280,28 @@ class ENUMERATION : public STRING {
 public:
     ENUMERATION(const std::string &val) :
             STRING(val) {}
+
+private:
 };
 
 typedef ENUMERATION BOOLEAN;
 
 // -------------------------------------------------------------------------------
-/** This is just a reference to an entity/object somewhere else 
- */
+/** This is just a reference to an entity/object somewhere else */
 // -------------------------------------------------------------------------------
 class ENTITY : public PrimitiveDataType<uint64_t> {
 public:
-    ENTITY(uint64_t val) : PrimitiveDataType<uint64_t>(val) {}
-    ENTITY() : PrimitiveDataType<uint64_t>(TypeError::ENTITY_NOT_SPECIFIED) {}
+    ENTITY(uint64_t val) :
+            PrimitiveDataType<uint64_t>(val) {
+        ai_assert(val != 0);
+    }
+
+    ENTITY() :
+            PrimitiveDataType<uint64_t>(TypeError::ENTITY_NOT_SPECIFIED) {
+        // empty
+    }
+
+private:
 };
 
 // -------------------------------------------------------------------------------
@@ -302,8 +319,7 @@ public:
     }
 
 public:
-    /** @see DaraType::Parse 
-     */
+    /** @see DaraType::Parse */
     static std::shared_ptr<const EXPRESS::LIST> Parse(const char *&inout,
             uint64_t line = SyntaxError::LINE_NOT_SPECIFIED,
             const EXPRESS::ConversionSchema *schema = NULL);
@@ -315,20 +331,29 @@ private:
 
 class BINARY : public PrimitiveDataType<uint32_t> {
 public:
-    BINARY(uint32_t val) : PrimitiveDataType<uint32_t>(val) {}
-    BINARY() : PrimitiveDataType<uint32_t>(TypeError::ENTITY_NOT_SPECIFIED_32) {}
+    BINARY(uint32_t val) :
+            PrimitiveDataType<uint32_t>(val) {
+        // empty
+    }
+
+    BINARY() :
+            PrimitiveDataType<uint32_t>(TypeError::ENTITY_NOT_SPECIFIED_32) {
+        // empty
+    }
 };
 
 // -------------------------------------------------------------------------------
 /* Not exactly a full EXPRESS schema but rather a list of conversion functions
- * to extract valid C++ objects out of a STEP file. Those conversion functions
- * may, however, perform further schema validations. 
- */
+         * to extract valid C++ objects out of a STEP file. Those conversion functions
+         * may, however, perform further schema validations. */
 // -------------------------------------------------------------------------------
 class ConversionSchema {
 public:
     struct SchemaEntry {
-        SchemaEntry(const char *name, ConvertObjectProc func) : mName(name), mFunc(func) {}
+        SchemaEntry(const char *name, ConvertObjectProc func) :
+                mName(name), mFunc(func) {
+            // empty
+        }
 
         const char *mName;
         ConvertObjectProc mFunc;
@@ -341,7 +366,8 @@ public:
         *this = schemas;
     }
 
-    ConversionSchema() = default;
+    ConversionSchema() {
+    }
 
     ConvertObjectProc GetConverterProc(const std::string &name) const {
         ConverterMap::const_iterator it = converters.find(name);
@@ -373,9 +399,8 @@ private:
 
 // ------------------------------------------------------------------------------
 /** Bundle all the relevant info from a STEP header, parts of which may later
- *  be plainly dumped to the logfile, whereas others may help the caller pick an
- *  appropriate loading strategy.
- */
+     *  be plainly dumped to the logfile, whereas others may help the caller pick an
+     *  appropriate loading strategy.*/
 // ------------------------------------------------------------------------------
 struct HeaderInfo {
     std::string timestamp;
@@ -384,14 +409,18 @@ struct HeaderInfo {
 };
 
 // ------------------------------------------------------------------------------
-/** Base class for all concrete object instances 
- */
+/** Base class for all concrete object instances */
 // ------------------------------------------------------------------------------
 class Object {
 public:
-    Object(const char *classname = "unknown") : id(0), classname(classname) {}
+    Object(const char *classname = "unknown") :
+            id(0), classname(classname) {
+        // empty
+    }
 
-    virtual ~Object() = default;
+    virtual ~Object() {
+        // empty
+    }
 
     // utilities to simplify casting to concrete types
     template <typename T>
@@ -440,15 +469,26 @@ size_t GenericFill(const STEP::DB &db, const EXPRESS::LIST &params, T *in);
 // ------------------------------------------------------------------------------
 template <typename TDerived, size_t arg_count>
 struct ObjectHelper : virtual Object {
-    ObjectHelper() : aux_is_derived(0) {}
+    ObjectHelper() :
+            aux_is_derived(0) {
+        // empty
+    }
 
     static Object *Construct(const STEP::DB &db, const EXPRESS::LIST &params) {
         // make sure we don't leak if Fill() throws an exception
         std::unique_ptr<TDerived> impl(new TDerived());
 
         // GenericFill<T> is undefined so we need to have a specialization
-        static_cast<void>(GenericFill<TDerived>(db, params, &*impl));
+        const size_t num_args = GenericFill<TDerived>(db, params, &*impl);
+        (void)num_args;
 
+        // the following check is commented because it will always trigger if
+        // parts of the entities are generated with dummy wrapper code.
+        // This is currently done to reduce the size of the loader
+        // code.
+        //if (num_args != params.GetSize() && impl->GetClassName() != "NotImplemented") {
+        //  DefaultLogger::get()->debug("STEP: not all parameters consumed");
+        //}
         return impl.release();
     }
 
@@ -462,9 +502,15 @@ struct ObjectHelper : virtual Object {
 // ------------------------------------------------------------------------------
 template <typename T>
 struct Maybe {
-    Maybe() : have() {}
+    Maybe() :
+            have() {
+        // empty
+    }
 
-    explicit Maybe(const T &ptr) : ptr(ptr), have(true) {}
+    explicit Maybe(const T &ptr) :
+            ptr(ptr), have(true) {
+        // empty
+    }
 
     void flag_invalid() {
         have = false;
@@ -511,8 +557,7 @@ private:
 
 // ------------------------------------------------------------------------------
 /** A LazyObject is created when needed. Before this happens, we just keep
- *  the text line that contains the object definition. 
- */
+       the text line that contains the object definition. */
 // -------------------------------------------------------------------------------
 class LazyObject {
     friend class DB;
@@ -604,7 +649,10 @@ inline bool operator==(const std::pair<uint64_t, std::shared_ptr<LazyObject>> &l
 template <typename T>
 struct Lazy {
     typedef Lazy Out;
-    Lazy(const LazyObject *obj = nullptr) : obj(obj) {}
+    Lazy(const LazyObject *obj = nullptr) :
+            obj(obj) {
+        // empty
+    }
 
     operator const T *() const {
         return obj->ToPtr<T>();
@@ -737,9 +785,8 @@ inline void GenericConvert(ListOf<T1, N1, N2> &a, const std::shared_ptr<const EX
 
 // ------------------------------------------------------------------------------
 /** Lightweight manager class that holds the map of all objects in a
- *  STEP file. DB's are exclusively maintained by the functions in
- *  STEPFileReader.h
- */
+     *  STEP file. DB's are exclusively maintained by the functions in
+     *  STEPFileReader.h*/
 // -------------------------------------------------------------------------------
 class DB {
     friend DB *ReadFileHeader(std::shared_ptr<IOStream> stream);
@@ -826,7 +873,7 @@ public:
         if (it != objects_bytype.end() && (*it).second.size()) {
             return *(*it).second.begin();
         }
-        return nullptr;
+        return NULL;
     }
 
     // same, but raise an exception if the object doesn't exist and return a reference
@@ -918,6 +965,7 @@ private:
 #endif // _MSC_VER
 
 } // namespace STEP
+
 } // namespace Assimp
 
 #endif // INCLUDED_AI_STEPFILE_H

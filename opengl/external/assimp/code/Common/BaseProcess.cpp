@@ -59,31 +59,24 @@ BaseProcess::BaseProcess() AI_NO_EXCEPT
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-BaseProcess::~BaseProcess() = default;
+BaseProcess::~BaseProcess() {
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 void BaseProcess::ExecuteOnScene(Importer *pImp) {
     ai_assert( nullptr != pImp );
-    if (pImp == nullptr) {
-        return;
-    }
-
-    ai_assert(nullptr != pImp->Pimpl()->mScene);
-    if (pImp->Pimpl()->mScene == nullptr) {
-        return;
-    }
+    ai_assert( nullptr != pImp->Pimpl()->mScene);
 
     progress = pImp->GetProgressHandler();
     ai_assert(nullptr != progress);
-    if (progress == nullptr) {
-        return;
-    }
 
     SetupProperties(pImp);
 
     // catch exceptions thrown inside the PostProcess-Step
     try {
         Execute(pImp->Pimpl()->mScene);
+
     } catch (const std::exception &err) {
 
         // extract error description

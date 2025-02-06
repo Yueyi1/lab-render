@@ -71,7 +71,9 @@ OptimizeMeshesProcess::OptimizeMeshesProcess()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-OptimizeMeshesProcess::~OptimizeMeshesProcess() = default;
+OptimizeMeshesProcess::~OptimizeMeshesProcess() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

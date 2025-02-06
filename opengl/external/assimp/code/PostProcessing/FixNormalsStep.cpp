@@ -59,11 +59,17 @@ using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-FixInfacingNormalsProcess::FixInfacingNormalsProcess() = default;
+FixInfacingNormalsProcess::FixInfacingNormalsProcess()
+{
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-FixInfacingNormalsProcess::~FixInfacingNormalsProcess() = default;
+FixInfacingNormalsProcess::~FixInfacingNormalsProcess()
+{
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

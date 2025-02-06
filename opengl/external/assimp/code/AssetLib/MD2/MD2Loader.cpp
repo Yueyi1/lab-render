@@ -102,7 +102,8 @@ MD2Importer::MD2Importer()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-MD2Importer::~MD2Importer() = default;
+MD2Importer::~MD2Importer()
+{}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

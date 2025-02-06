@@ -74,7 +74,7 @@ using namespace Assimp::ASE;
             return;                                \
         }                                          \
     }                                              \
-    if ('\0' == *filePtr) {                        \
+    else if ('\0' == *filePtr) {                   \
         return;                                    \
     }                                              \
     if (IsLineEnd(*filePtr) && !bLastWasEndLine) { \
@@ -264,7 +264,7 @@ void Parser::Parse() {
             if (TokenMatch(filePtr, "GEOMOBJECT", 10))
 
             {
-                m_vMeshes.emplace_back("UNNAMED");
+                m_vMeshes.push_back(Mesh("UNNAMED"));
                 ParseLV1ObjectBlock(m_vMeshes.back());
                 continue;
             }
@@ -272,7 +272,7 @@ void Parser::Parse() {
             if (TokenMatch(filePtr, "HELPEROBJECT", 12))
 
             {
-                m_vDummies.emplace_back();
+                m_vDummies.push_back(Dummy());
                 ParseLV1ObjectBlock(m_vDummies.back());
                 continue;
             }
@@ -280,13 +280,13 @@ void Parser::Parse() {
             if (TokenMatch(filePtr, "LIGHTOBJECT", 11))
 
             {
-                m_vLights.emplace_back("UNNAMED");
+                m_vLights.push_back(Light("UNNAMED"));
                 ParseLV1ObjectBlock(m_vLights.back());
                 continue;
             }
             // camera object
             if (TokenMatch(filePtr, "CAMERAOBJECT", 12)) {
-                m_vCameras.emplace_back("UNNAMED");
+                m_vCameras.push_back(Camera("UNNAMED"));
                 ParseLV1ObjectBlock(m_vCameras.back());
                 continue;
             }
@@ -385,7 +385,7 @@ void Parser::ParseLV1SoftSkinBlock() {
                         unsigned int numWeights;
                         ParseLV4MeshLong(numWeights);
 
-                        curMesh->mBoneVertices.emplace_back();
+                        curMesh->mBoneVertices.push_back(ASE::BoneVertex());
                         ASE::BoneVertex &vert = curMesh->mBoneVertices.back();
 
                         // Reserve enough storage
@@ -409,7 +409,7 @@ void Parser::ParseLV1SoftSkinBlock() {
                             if (-1 == me.first) {
                                 // We don't have this bone yet, so add it to the list
                                 me.first = static_cast<int>(curMesh->mBones.size());
-                                curMesh->mBones.emplace_back(bone);
+                                curMesh->mBones.push_back(ASE::Bone(bone));
                             }
                             ParseLV4MeshFloat(me.second);
 
@@ -420,8 +420,6 @@ void Parser::ParseLV1SoftSkinBlock() {
                 }
             }
         }
-        if (*filePtr == '\0')
-            return;
         ++filePtr;
         SkipSpacesAndLineEnd(&filePtr);
     }
@@ -648,13 +646,10 @@ void Parser::ParseLV2MaterialBlock(ASE::Material &mat) {
                 }
 
                 // get a reference to the material
-                if (iIndex < mat.avSubMaterials.size()) {
-                    Material &sMat = mat.avSubMaterials[iIndex];
+                Material &sMat = mat.avSubMaterials[iIndex];
 
-                    // parse the material block
-                    ParseLV2MaterialBlock(sMat);
-                }
-
+                // parse the material block
+                ParseLV2MaterialBlock(sMat);
                 continue;
             }
         }
@@ -1011,7 +1006,7 @@ void Parser::ParseLV3ScaleAnimationBlock(ASE::Animation &anim) {
                 anim.mScalingType = ASE::Animation::TCB;
             }
             if (b) {
-                anim.akeyScaling.emplace_back();
+                anim.akeyScaling.push_back(aiVectorKey());
                 aiVectorKey &key = anim.akeyScaling.back();
                 ParseLV4MeshFloatTriple(&key.mValue.x, iIndex);
                 key.mTime = (double)iIndex;
@@ -1050,7 +1045,7 @@ void Parser::ParseLV3PosAnimationBlock(ASE::Animation &anim) {
                 anim.mPositionType = ASE::Animation::TCB;
             }
             if (b) {
-                anim.akeyPositions.emplace_back();
+                anim.akeyPositions.push_back(aiVectorKey());
                 aiVectorKey &key = anim.akeyPositions.back();
                 ParseLV4MeshFloatTriple(&key.mValue.x, iIndex);
                 key.mTime = (double)iIndex;
@@ -1089,7 +1084,7 @@ void Parser::ParseLV3RotAnimationBlock(ASE::Animation &anim) {
                 anim.mRotationType = ASE::Animation::TCB;
             }
             if (b) {
-                anim.akeyRotations.emplace_back();
+                anim.akeyRotations.push_back(aiQuatKey());
                 aiQuatKey &key = anim.akeyRotations.back();
                 aiVector3D v;
                 ai_real f;

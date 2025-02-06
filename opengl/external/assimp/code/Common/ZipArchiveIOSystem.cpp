@@ -122,15 +122,15 @@ voidpf IOSystem2Unzip::open(voidpf opaque, const char *filename, int mode) {
 voidpf IOSystem2Unzip::opendisk(voidpf opaque, voidpf stream, uint32_t number_disk, int mode) {
     ZipFile *io_stream = (ZipFile *)stream;
     voidpf ret = NULL;
-    int i;
+    size_t i;
 
     char *disk_filename = (char*)malloc(io_stream->m_Filename.length() + 1);
     strncpy(disk_filename, io_stream->m_Filename.c_str(), io_stream->m_Filename.length() + 1);
-    for (i = (int)io_stream->m_Filename.length() - 1; i >= 0; i -= 1)
+    for (i = io_stream->m_Filename.length() - 1; i >= 0; i -= 1)
     {
         if (disk_filename[i] != '.')
             continue;
-        snprintf(&disk_filename[i], io_stream->m_Filename.length() - size_t(i), ".z%02u", number_disk + 1);
+        snprintf(&disk_filename[i], io_stream->m_Filename.length() - i, ".z%02u", number_disk + 1);
         break;
     }
 
@@ -196,9 +196,7 @@ zlib_filefunc_def IOSystem2Unzip::get(IOSystem *pIOHandler) {
     zlib_filefunc_def mapping;
 
     mapping.zopen_file = (open_file_func)open;
-#ifdef _UNZ_H
     mapping.zopendisk_file = (opendisk_file_func)opendisk;
-#endif
     mapping.zread_file = (read_file_func)read;
     mapping.zwrite_file = (write_file_func)write;
     mapping.ztell_file = (tell_file_func)tell;
@@ -279,7 +277,8 @@ ZipFile::ZipFile(std::string &filename, size_t size) :
     m_Buffer = std::unique_ptr<uint8_t[]>(new uint8_t[m_Size]);
 }
 
-ZipFile::~ZipFile() = default;
+ZipFile::~ZipFile() {
+}
 
 size_t ZipFile::Read(void *pvBuffer, size_t pSize, size_t pCount) {
     // Should be impossible

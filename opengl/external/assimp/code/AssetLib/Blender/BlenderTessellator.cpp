@@ -274,7 +274,9 @@ BlenderTessellatorP2T::BlenderTessellatorP2T( BlenderBMeshConverter& converter )
 }
 
 // ------------------------------------------------------------------------------------------------
-
+BlenderTessellatorP2T::~BlenderTessellatorP2T( )
+{
+}
 
 // ------------------------------------------------------------------------------------------------
 void BlenderTessellatorP2T::Tessellate( const MLoop* polyLoop, int vertexCount, const std::vector< MVert >& vertices )

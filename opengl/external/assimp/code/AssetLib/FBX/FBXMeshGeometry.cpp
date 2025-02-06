@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -53,15 +54,18 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include "FBXImportSettings.h"
 #include "FBXDocumentUtil.h"
 
+
 namespace Assimp {
 namespace FBX {
 
 using namespace Util;
 
 // ------------------------------------------------------------------------------------------------
-Geometry::Geometry(uint64_t id, const Element& element, const std::string& name, const Document& doc) :
-        Object(id, element, name), skin() {
-    const std::vector<const Connection*> &conns = doc.GetConnectionsByDestinationSequenced(ID(),"Deformer");
+Geometry::Geometry(uint64_t id, const Element& element, const std::string& name, const Document& doc)
+    : Object(id, element, name)
+    , skin()
+{
+    const std::vector<const Connection*>& conns = doc.GetConnectionsByDestinationSequenced(ID(),"Deformer");
     for(const Connection* con : conns) {
         const Skin* const sk = ProcessSimpleConnection<Skin>(*con, false, "Skin -> Geometry", element);
         if(sk) {
@@ -72,6 +76,12 @@ Geometry::Geometry(uint64_t id, const Element& element, const std::string& name,
             blendShapes.push_back(bsp);
         }
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+Geometry::~Geometry()
+{
+    // empty
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -173,10 +183,16 @@ MeshGeometry::MeshGeometry(uint64_t id, const Element& element, const std::strin
         if(doc.Settings().readAllLayers || index == 0) {
             const Scope& layer = GetRequiredScope(*(*it).second);
             ReadLayer(layer);
-        } else {
+        }
+        else {
             FBXImporter::LogWarn("ignoring additional geometry layers");
         }
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+MeshGeometry::~MeshGeometry() {
+    // empty
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -665,7 +681,9 @@ ShapeGeometry::ShapeGeometry(uint64_t id, const Element& element, const std::str
 }
 
 // ------------------------------------------------------------------------------------------------
-ShapeGeometry::~ShapeGeometry() = default;
+ShapeGeometry::~ShapeGeometry() {
+    // empty
+}
 // ------------------------------------------------------------------------------------------------
 const std::vector<aiVector3D>& ShapeGeometry::GetVertices() const {
     return m_vertices;
@@ -693,7 +711,9 @@ LineGeometry::LineGeometry(uint64_t id, const Element& element, const std::strin
 }
 
 // ------------------------------------------------------------------------------------------------
-LineGeometry::~LineGeometry() = default;
+LineGeometry::~LineGeometry() {
+    // empty
+}
 // ------------------------------------------------------------------------------------------------
 const std::vector<aiVector3D>& LineGeometry::GetVertices() const {
     return m_vertices;

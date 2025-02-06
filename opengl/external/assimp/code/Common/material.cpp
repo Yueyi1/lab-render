@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -46,7 +47,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/material.h>
 
 // -------------------------------------------------------------------------------
-const char *aiTextureTypeToString(aiTextureType in) {
+const char *TextureTypeToString(aiTextureType in) {
     switch (in) {
     case aiTextureType_NONE:
         return "n/a";

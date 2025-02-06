@@ -218,7 +218,7 @@ void LWOImporter::CopyFaceIndicesLWOB(FaceList::iterator& it,
 // ------------------------------------------------------------------------------------------------
 LWO::Texture* LWOImporter::SetupNewTextureLWOB(LWO::TextureList& list,unsigned int size)
 {
-    list.emplace_back();
+    list.push_back(LWO::Texture());
     LWO::Texture* tex = &list.back();
 
     std::string type;

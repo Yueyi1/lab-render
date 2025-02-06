@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -49,6 +50,7 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace Assimp {
 namespace IFC {
 namespace {
+
 
 // --------------------------------------------------------------------------------
 // Conic is the base class for Circle and Ellipse
@@ -224,7 +226,7 @@ public:
                 IFCImporter::LogVerboseDebug("ignoring transition code on composite curve segment, only continuous transitions are supported");
             }
 
-            curves.emplace_back(bc,IsTrue(curveSegment.SameSense) );
+            curves.push_back( CurveEntry(bc,IsTrue(curveSegment.SameSense)) );
             total += bc->GetParametricRangeDelta();
         }
 
@@ -544,10 +546,8 @@ IfcFloat RecursiveSearch(const Curve* cv, const IfcVector3& val, IfcFloat a, Ifc
         }
     }
 
-#ifndef __INTEL_LLVM_COMPILER
     ai_assert( min_diff[ 0 ] != inf );
     ai_assert( min_diff[ 1 ] != inf );
-#endif // __INTEL_LLVM_COMPILER
     if ( std::fabs(a-min_point[0]) < threshold || recurse >= max_recurse) {
         return min_point[0];
     }
@@ -606,10 +606,8 @@ bool BoundedCurve::IsClosed() const {
 // ------------------------------------------------------------------------------------------------
 void BoundedCurve::SampleDiscrete(TempMesh& out) const {
     const ParamRange& range = GetParametricRange();
-#ifndef __INTEL_LLVM_COMPILER
     ai_assert( range.first != std::numeric_limits<IfcFloat>::infinity() );
     ai_assert( range.second != std::numeric_limits<IfcFloat>::infinity() );
-#endif // __INTEL_LLVM_COMPILER
 
     return SampleDiscrete(out,range.first,range.second);
 }

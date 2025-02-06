@@ -99,16 +99,18 @@ ObjFileMtlImporter::ObjFileMtlImporter(std::vector<char> &buffer,
     ai_assert(nullptr != m_pModel);
     m_buffer.resize(BUFFERSIZE);
     std::fill(m_buffer.begin(), m_buffer.end(), '\0');
-    if (nullptr == m_pModel->mDefaultMaterial) {
-        m_pModel->mDefaultMaterial = new ObjFile::Material;
-        m_pModel->mDefaultMaterial->MaterialName.Set("default");
+    if (nullptr == m_pModel->m_pDefaultMaterial) {
+        m_pModel->m_pDefaultMaterial = new ObjFile::Material;
+        m_pModel->m_pDefaultMaterial->MaterialName.Set("default");
     }
     load();
 }
 
 // -------------------------------------------------------------------
 //  Destructor
-ObjFileMtlImporter::~ObjFileMtlImporter() = default;
+ObjFileMtlImporter::~ObjFileMtlImporter() {
+    // empty
+}
 
 // -------------------------------------------------------------------
 //  Loads the material description
@@ -124,21 +126,17 @@ void ObjFileMtlImporter::load() {
                 if (*m_DataIt == 'a') // Ambient color
                 {
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getColorRGBA(&m_pModel->mCurrentMaterial->ambient);
+                    getColorRGBA(&m_pModel->m_pCurrentMaterial->ambient);
                 } else if (*m_DataIt == 'd') {
                     // Diffuse color
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getColorRGBA(&m_pModel->mCurrentMaterial->diffuse);
+                    getColorRGBA(&m_pModel->m_pCurrentMaterial->diffuse);
                 } else if (*m_DataIt == 's') {
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getColorRGBA(&m_pModel->mCurrentMaterial->specular);
+                    getColorRGBA(&m_pModel->m_pCurrentMaterial->specular);
                 } else if (*m_DataIt == 'e') {
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getColorRGBA(&m_pModel->mCurrentMaterial->emissive);
+                    getColorRGBA(&m_pModel->m_pCurrentMaterial->emissive);
                 }
                 m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
             } break;
@@ -147,15 +145,13 @@ void ObjFileMtlImporter::load() {
                 // Material transmission color
                 if (*m_DataIt == 'f')  {
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getColorRGBA(&m_pModel->mCurrentMaterial->transparent);
+                    getColorRGBA(&m_pModel->m_pCurrentMaterial->transparent);
                 } else if (*m_DataIt == 'r')  {
                     // Material transmission alpha value
                     ++m_DataIt;
                     ai_real d;
                     getFloatValue(d);
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        m_pModel->mCurrentMaterial->alpha = static_cast<ai_real>(1.0) - d;
+                    m_pModel->m_pCurrentMaterial->alpha = static_cast<ai_real>(1.0) - d;
                 }
                 m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
             } break;
@@ -166,8 +162,7 @@ void ObjFileMtlImporter::load() {
                 } else {
                     // Alpha value
                     ++m_DataIt;
-                    if (m_pModel->mCurrentMaterial != nullptr)
-                        getFloatValue(m_pModel->mCurrentMaterial->alpha);
+                    getFloatValue(m_pModel->m_pCurrentMaterial->alpha);
                     m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
                 }
             } break;
@@ -178,13 +173,11 @@ void ObjFileMtlImporter::load() {
                 switch (*m_DataIt) {
                     case 's': // Specular exponent
                         ++m_DataIt;
-                        if (m_pModel->mCurrentMaterial != nullptr)
-                            getFloatValue(m_pModel->mCurrentMaterial->shineness);
+                        getFloatValue(m_pModel->m_pCurrentMaterial->shineness);
                         break;
                     case 'i': // Index Of refraction
                         ++m_DataIt;
-                        if (m_pModel->mCurrentMaterial != nullptr)
-                            getFloatValue(m_pModel->mCurrentMaterial->ior);
+                        getFloatValue(m_pModel->m_pCurrentMaterial->ior);
                         break;
                     case 'e': // New material
                         createMaterial();
@@ -204,28 +197,23 @@ void ObjFileMtlImporter::load() {
                     {
                     case 'r':
                         ++m_DataIt;
-                        if (m_pModel->mCurrentMaterial != nullptr)
-                            getFloatValue(m_pModel->mCurrentMaterial->roughness);
+                        getFloatValue(m_pModel->m_pCurrentMaterial->roughness);
                         break;
                     case 'm':
                         ++m_DataIt;
-                        if (m_pModel->mCurrentMaterial != nullptr)
-                            getFloatValue(m_pModel->mCurrentMaterial->metallic);
+                        getFloatValue(m_pModel->m_pCurrentMaterial->metallic);
                         break;
                     case 's':
                         ++m_DataIt;
-                        if (m_pModel->mCurrentMaterial != nullptr)
-                            getColorRGBA(m_pModel->mCurrentMaterial->sheen);
+                        getColorRGBA(&m_pModel->m_pCurrentMaterial->sheen);
                         break;
                     case 'c':
                         ++m_DataIt;
                         if (*m_DataIt == 'r') {
                             ++m_DataIt;
-                            if (m_pModel->mCurrentMaterial != nullptr)
-                                getFloatValue(m_pModel->mCurrentMaterial->clearcoat_roughness);
+                            getFloatValue(m_pModel->m_pCurrentMaterial->clearcoat_roughness);
                         } else {
-                            if (m_pModel->mCurrentMaterial != nullptr)
-                                getFloatValue(m_pModel->mCurrentMaterial->clearcoat_thickness);
+                            getFloatValue(m_pModel->m_pCurrentMaterial->clearcoat_thickness);
                         }
                         break;
                     }
@@ -244,17 +232,14 @@ void ObjFileMtlImporter::load() {
             case 'i': // Illumination model
             {
                 m_DataIt = getNextToken<DataArrayIt>(m_DataIt, m_DataItEnd);
-                if (m_pModel->mCurrentMaterial != nullptr)
-                    getIlluminationModel(m_pModel->mCurrentMaterial->illumination_model);
+                getIlluminationModel(m_pModel->m_pCurrentMaterial->illumination_model);
                 m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
             } break;
 
             case 'a': // Anisotropy
             {
-                ++m_DataIt;
-                getFloatValue(m_pModel->mCurrentMaterial->anisotropy);
-                if (m_pModel->mCurrentMaterial != nullptr)
-                    m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
+                getFloatValue(m_pModel->m_pCurrentMaterial->anisotropy);
+                m_DataIt = skipLine<DataArrayIt>(m_DataIt, m_DataItEnd, m_uiLine);
             } break;
 
             default: {
@@ -282,19 +267,12 @@ void ObjFileMtlImporter::getColorRGBA(aiColor3D *pColor) {
     pColor->b = b;
 }
 
-void ObjFileMtlImporter::getColorRGBA(Maybe<aiColor3D> &value) {
-    aiColor3D v;
-    getColorRGBA(&v);
-    value = Maybe<aiColor3D>(v);
-}
-
 // -------------------------------------------------------------------
 //  Loads the kind of illumination model.
 void ObjFileMtlImporter::getIlluminationModel(int &illum_model) {
     m_DataIt = CopyNextWord<DataArrayIt>(m_DataIt, m_DataItEnd, &m_buffer[0], BUFFERSIZE);
     illum_model = atoi(&m_buffer[0]);
 }
-
 
 // -------------------------------------------------------------------
 //  Loads a single float value.
@@ -305,17 +283,8 @@ void ObjFileMtlImporter::getFloatValue(ai_real &value) {
         value = 0.0f;
         return;
     }
-
+    
     value = (ai_real)fast_atof(&m_buffer[0]);
-}
-
-void ObjFileMtlImporter::getFloatValue(Maybe<ai_real> &value) {
-    m_DataIt = CopyNextWord<DataArrayIt>(m_DataIt, m_DataItEnd, &m_buffer[0], BUFFERSIZE);
-    size_t len = std::strlen(&m_buffer[0]);
-    if (len)
-        value = Maybe<ai_real>(fast_atof(&m_buffer[0]));
-    else
-        value = Maybe<ai_real>();
 }
 
 // -------------------------------------------------------------------
@@ -343,20 +312,20 @@ void ObjFileMtlImporter::createMaterial() {
 
     name = trim_whitespaces(name);
 
-    std::map<std::string, ObjFile::Material *>::iterator it = m_pModel->mMaterialMap.find(name);
-    if (m_pModel->mMaterialMap.end() == it) {
+    std::map<std::string, ObjFile::Material *>::iterator it = m_pModel->m_MaterialMap.find(name);
+    if (m_pModel->m_MaterialMap.end() == it) {
         // New Material created
-        m_pModel->mCurrentMaterial = new ObjFile::Material();
-        m_pModel->mCurrentMaterial->MaterialName.Set(name);
-        m_pModel->mMaterialLib.push_back(name);
-        m_pModel->mMaterialMap[name] = m_pModel->mCurrentMaterial;
+        m_pModel->m_pCurrentMaterial = new ObjFile::Material();
+        m_pModel->m_pCurrentMaterial->MaterialName.Set(name);
+        m_pModel->m_MaterialLib.push_back(name);
+        m_pModel->m_MaterialMap[name] = m_pModel->m_pCurrentMaterial;
 
-        if (m_pModel->mCurrentMesh) {
-            m_pModel->mCurrentMesh->m_uiMaterialIndex = static_cast<unsigned int>(m_pModel->mMaterialLib.size() - 1);
+        if (m_pModel->m_pCurrentMesh) {
+            m_pModel->m_pCurrentMesh->m_uiMaterialIndex = static_cast<unsigned int>(m_pModel->m_MaterialLib.size() - 1);
         }
     } else {
         // Use older material
-        m_pModel->mCurrentMaterial = (*it).second;
+        m_pModel->m_pCurrentMaterial = (*it).second;
     }
 }
 
@@ -369,38 +338,38 @@ void ObjFileMtlImporter::getTexture() {
     const char *pPtr(&(*m_DataIt));
     if (!ASSIMP_strincmp(pPtr, DiffuseTexture.c_str(), static_cast<unsigned int>(DiffuseTexture.size()))) {
         // Diffuse texture
-        out = &m_pModel->mCurrentMaterial->texture;
+        out = &m_pModel->m_pCurrentMaterial->texture;
         clampIndex = ObjFile::Material::TextureDiffuseType;
     } else if (!ASSIMP_strincmp(pPtr, AmbientTexture.c_str(), static_cast<unsigned int>(AmbientTexture.size()))) {
         // Ambient texture
-        out = &m_pModel->mCurrentMaterial->textureAmbient;
+        out = &m_pModel->m_pCurrentMaterial->textureAmbient;
         clampIndex = ObjFile::Material::TextureAmbientType;
     } else if (!ASSIMP_strincmp(pPtr, SpecularTexture.c_str(), static_cast<unsigned int>(SpecularTexture.size()))) {
         // Specular texture
-        out = &m_pModel->mCurrentMaterial->textureSpecular;
+        out = &m_pModel->m_pCurrentMaterial->textureSpecular;
         clampIndex = ObjFile::Material::TextureSpecularType;
     } else if (!ASSIMP_strincmp(pPtr, DisplacementTexture1.c_str(), static_cast<unsigned int>(DisplacementTexture1.size())) ||
                !ASSIMP_strincmp(pPtr, DisplacementTexture2.c_str(), static_cast<unsigned int>(DisplacementTexture2.size()))) {
         // Displacement texture
-        out = &m_pModel->mCurrentMaterial->textureDisp;
+        out = &m_pModel->m_pCurrentMaterial->textureDisp;
         clampIndex = ObjFile::Material::TextureDispType;
     } else if (!ASSIMP_strincmp(pPtr, OpacityTexture.c_str(), static_cast<unsigned int>(OpacityTexture.size()))) {
         // Opacity texture
-        out = &m_pModel->mCurrentMaterial->textureOpacity;
+        out = &m_pModel->m_pCurrentMaterial->textureOpacity;
         clampIndex = ObjFile::Material::TextureOpacityType;
     } else if (!ASSIMP_strincmp(pPtr, EmissiveTexture1.c_str(), static_cast<unsigned int>(EmissiveTexture1.size())) ||
                !ASSIMP_strincmp(pPtr, EmissiveTexture2.c_str(), static_cast<unsigned int>(EmissiveTexture2.size()))) {
         // Emissive texture
-        out = &m_pModel->mCurrentMaterial->textureEmissive;
+        out = &m_pModel->m_pCurrentMaterial->textureEmissive;
         clampIndex = ObjFile::Material::TextureEmissiveType;
     } else if (!ASSIMP_strincmp(pPtr, BumpTexture1.c_str(), static_cast<unsigned int>(BumpTexture1.size())) ||
                !ASSIMP_strincmp(pPtr, BumpTexture2.c_str(), static_cast<unsigned int>(BumpTexture2.size()))) {
         // Bump texture
-        out = &m_pModel->mCurrentMaterial->textureBump;
+        out = &m_pModel->m_pCurrentMaterial->textureBump;
         clampIndex = ObjFile::Material::TextureBumpType;
     } else if (!ASSIMP_strincmp(pPtr, NormalTextureV1.c_str(), static_cast<unsigned int>(NormalTextureV1.size())) || !ASSIMP_strincmp(pPtr, NormalTextureV2.c_str(), static_cast<unsigned int>(NormalTextureV2.size()))) {
         // Normal map
-        out = &m_pModel->mCurrentMaterial->textureNormal;
+        out = &m_pModel->m_pCurrentMaterial->textureNormal;
         clampIndex = ObjFile::Material::TextureNormalType;
     } else if (!ASSIMP_strincmp(pPtr, ReflectionTexture.c_str(), static_cast<unsigned int>(ReflectionTexture.size()))) {
         // Reflection texture(s)
@@ -408,23 +377,23 @@ void ObjFileMtlImporter::getTexture() {
         return;
     } else if (!ASSIMP_strincmp(pPtr, SpecularityTexture.c_str(), static_cast<unsigned int>(SpecularityTexture.size()))) {
         // Specularity scaling (glossiness)
-        out = &m_pModel->mCurrentMaterial->textureSpecularity;
+        out = &m_pModel->m_pCurrentMaterial->textureSpecularity;
         clampIndex = ObjFile::Material::TextureSpecularityType;
     } else if ( !ASSIMP_strincmp( pPtr, RoughnessTexture.c_str(), static_cast<unsigned int>(RoughnessTexture.size()))) {
         // PBR Roughness texture
-        out = & m_pModel->mCurrentMaterial->textureRoughness;
+        out = & m_pModel->m_pCurrentMaterial->textureRoughness;
         clampIndex = ObjFile::Material::TextureRoughnessType;
     } else if ( !ASSIMP_strincmp( pPtr, MetallicTexture.c_str(), static_cast<unsigned int>(MetallicTexture.size()))) {
         // PBR Metallic texture
-        out = & m_pModel->mCurrentMaterial->textureMetallic;
+        out = & m_pModel->m_pCurrentMaterial->textureMetallic;
         clampIndex = ObjFile::Material::TextureMetallicType;
     } else if (!ASSIMP_strincmp( pPtr, SheenTexture.c_str(), static_cast<unsigned int>(SheenTexture.size()))) {
         // PBR Sheen (reflectance) texture
-        out = & m_pModel->mCurrentMaterial->textureSheen;
+        out = & m_pModel->m_pCurrentMaterial->textureSheen;
         clampIndex = ObjFile::Material::TextureSheenType;
     } else if (!ASSIMP_strincmp( pPtr, RMATexture.c_str(), static_cast<unsigned int>(RMATexture.size()))) {
         // PBR Rough/Metal/AO texture
-        out = & m_pModel->mCurrentMaterial->textureRMA;
+        out = & m_pModel->m_pCurrentMaterial->textureRMA;
         clampIndex = ObjFile::Material::TextureRMAType;
     } else {
         ASSIMP_LOG_ERROR("OBJ/MTL: Encountered unknown texture type");
@@ -433,7 +402,7 @@ void ObjFileMtlImporter::getTexture() {
 
     bool clamp = false;
     getTextureOption(clamp, clampIndex, out);
-    m_pModel->mCurrentMaterial->clamp[clampIndex] = clamp;
+    m_pModel->m_pCurrentMaterial->clamp[clampIndex] = clamp;
 
     std::string texture;
     m_DataIt = getName<DataArrayIt>(m_DataIt, m_DataItEnd, texture);
@@ -481,33 +450,29 @@ void ObjFileMtlImporter::getTextureOption(bool &clamp, int &clampIndex, aiString
             CopyNextWord(it, m_DataItEnd, value, sizeof(value) / sizeof(*value));
             if (!ASSIMP_strincmp(value, "cube_top", 8)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeTopType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[0];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[0];
             } else if (!ASSIMP_strincmp(value, "cube_bottom", 11)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeBottomType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[1];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[1];
             } else if (!ASSIMP_strincmp(value, "cube_front", 10)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeFrontType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[2];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[2];
             } else if (!ASSIMP_strincmp(value, "cube_back", 9)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeBackType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[3];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[3];
             } else if (!ASSIMP_strincmp(value, "cube_left", 9)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeLeftType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[4];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[4];
             } else if (!ASSIMP_strincmp(value, "cube_right", 10)) {
                 clampIndex = ObjFile::Material::TextureReflectionCubeRightType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[5];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[5];
             } else if (!ASSIMP_strincmp(value, "sphere", 6)) {
                 clampIndex = ObjFile::Material::TextureReflectionSphereType;
-                out = &m_pModel->mCurrentMaterial->textureReflection[0];
+                out = &m_pModel->m_pCurrentMaterial->textureReflection[0];
             }
 
             skipToken = 2;
-        } else if (!ASSIMP_strincmp(pPtr, BumpOption.c_str(), static_cast<unsigned int>(BumpOption.size()))) {
-            DataArrayIt it = getNextToken<DataArrayIt>(m_DataIt, m_DataItEnd);
-            getFloat(it, m_DataItEnd, m_pModel->mCurrentMaterial->bump_multiplier);
-            skipToken = 2;
-        } else if (!ASSIMP_strincmp(pPtr, BlendUOption.c_str(), static_cast<unsigned int>(BlendUOption.size())) || !ASSIMP_strincmp(pPtr, BlendVOption.c_str(), static_cast<unsigned int>(BlendVOption.size())) || !ASSIMP_strincmp(pPtr, BoostOption.c_str(), static_cast<unsigned int>(BoostOption.size())) || !ASSIMP_strincmp(pPtr, ResolutionOption.c_str(), static_cast<unsigned int>(ResolutionOption.size())) || !ASSIMP_strincmp(pPtr, ChannelOption.c_str(), static_cast<unsigned int>(ChannelOption.size()))) {
+        } else if (!ASSIMP_strincmp(pPtr, BlendUOption.c_str(), static_cast<unsigned int>(BlendUOption.size())) || !ASSIMP_strincmp(pPtr, BlendVOption.c_str(), static_cast<unsigned int>(BlendVOption.size())) || !ASSIMP_strincmp(pPtr, BoostOption.c_str(), static_cast<unsigned int>(BoostOption.size())) || !ASSIMP_strincmp(pPtr, ResolutionOption.c_str(), static_cast<unsigned int>(ResolutionOption.size())) || !ASSIMP_strincmp(pPtr, BumpOption.c_str(), static_cast<unsigned int>(BumpOption.size())) || !ASSIMP_strincmp(pPtr, ChannelOption.c_str(), static_cast<unsigned int>(ChannelOption.size()))) {
             skipToken = 2;
         } else if (!ASSIMP_strincmp(pPtr, ModifyMapOption.c_str(), static_cast<unsigned int>(ModifyMapOption.size()))) {
             skipToken = 3;

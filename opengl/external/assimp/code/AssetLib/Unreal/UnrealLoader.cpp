@@ -174,7 +174,9 @@ UnrealImporter::UnrealImporter() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-UnrealImporter::~UnrealImporter() = default;
+UnrealImporter::~UnrealImporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
@@ -333,7 +335,7 @@ void UnrealImporter::InternReadFile(const std::string &pFile,
                     SkipSpacesAndLineEnd(&data);
 
                     if (TokenMatchI(data, "IMPORT", 6)) {
-                        tempTextures.emplace_back();
+                        tempTextures.push_back(std::pair<std::string, std::string>());
                         std::pair<std::string, std::string> &me = tempTextures.back();
                         for (; !IsLineEnd(*data); ++data) {
                             if (!::ASSIMP_strincmp(data, "NAME=", 5)) {
@@ -359,7 +361,7 @@ void UnrealImporter::InternReadFile(const std::string &pFile,
 
                     if (TokenMatchI(data, "SETTEXTURE", 10)) {
 
-                        textures.emplace_back();
+                        textures.push_back(std::pair<unsigned int, std::string>());
                         std::pair<unsigned int, std::string> &me = textures.back();
 
                         for (; !IsLineEnd(*data); ++data) {

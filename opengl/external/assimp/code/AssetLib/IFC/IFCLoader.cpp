@@ -120,11 +120,12 @@ static const aiImporterDesc desc = {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-IFCImporter::IFCImporter() = default;
+IFCImporter::IFCImporter() {}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-IFCImporter::~IFCImporter() = default;
+IFCImporter::~IFCImporter() {
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

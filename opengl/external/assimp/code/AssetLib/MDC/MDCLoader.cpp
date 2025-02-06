@@ -105,7 +105,9 @@ MDCImporter::MDCImporter() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-MDCImporter::~MDCImporter() = default;
+MDCImporter::~MDCImporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
@@ -269,13 +271,13 @@ void MDCImporter::InternReadFile(
             pcMesh->mMaterialIndex = (unsigned int)aszShaders.size();
 
             // create a new shader
-            aszShaders.emplace_back(pcShader->ucName,
-                    ::strnlen(pcShader->ucName, sizeof(pcShader->ucName)));
+            aszShaders.push_back(std::string(pcShader->ucName,
+                    ::strnlen(pcShader->ucName, sizeof(pcShader->ucName))));
         }
         // need to create a default material
         else if (UINT_MAX == iDefaultMatIndex) {
             pcMesh->mMaterialIndex = iDefaultMatIndex = (unsigned int)aszShaders.size();
-            aszShaders.emplace_back();
+            aszShaders.push_back(std::string());
         }
         // otherwise assign a reference to the default material
         else

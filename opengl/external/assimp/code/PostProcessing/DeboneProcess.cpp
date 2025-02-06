@@ -66,7 +66,10 @@ DeboneProcess::DeboneProcess()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-DeboneProcess::~DeboneProcess() = default;
+DeboneProcess::~DeboneProcess()
+{
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -153,7 +156,7 @@ void DeboneProcess::Execute( aiScene* pScene)
             }
             else    {
                 // Mesh is kept unchanged - store it's new place in the mesh array
-                mSubMeshIndices[a].emplace_back(static_cast<unsigned int>(meshes.size()), (aiNode *)0);
+                mSubMeshIndices[a].push_back(std::pair<unsigned int,aiNode*>(static_cast<unsigned int>(meshes.size()),(aiNode*)0));
                 meshes.push_back(srcMesh);
             }
         }

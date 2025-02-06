@@ -59,15 +59,18 @@ SGSpatialSort::SGSpatialSort()
 }
 // ------------------------------------------------------------------------------------------------
 // Destructor
-SGSpatialSort::~SGSpatialSort() = default;
+SGSpatialSort::~SGSpatialSort()
+{
+    // nothing to do here, everything destructs automatically
+}
 // ------------------------------------------------------------------------------------------------
 void SGSpatialSort::Add(const aiVector3D& vPosition, unsigned int index,
     unsigned int smoothingGroup)
 {
     // store position by index and distance
     float distance = vPosition * mPlaneNormal;
-    mPositions.emplace_back( index, vPosition,
-        distance, smoothingGroup);
+    mPositions.push_back( Entry( index, vPosition,
+        distance, smoothingGroup));
 }
 // ------------------------------------------------------------------------------------------------
 void SGSpatialSort::Prepare()

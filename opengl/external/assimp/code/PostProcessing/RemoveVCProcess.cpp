@@ -58,7 +58,7 @@ RemoveVCProcess::RemoveVCProcess() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-RemoveVCProcess::~RemoveVCProcess() = default;
+RemoveVCProcess::~RemoveVCProcess() {}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

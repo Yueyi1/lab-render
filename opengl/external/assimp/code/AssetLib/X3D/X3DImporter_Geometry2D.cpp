@@ -2,7 +2,8 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2019, assimp team
+
 
 All rights reserved.
 
@@ -151,7 +152,7 @@ void X3DImporter::readArcClose2D(XmlNode &node) {
             std::list<aiVector3D> &vlist = ((X3DNodeElementGeometry2D *)ne)->Vertices; // just short alias.
 
             if ((closureType == "PIE") || (closureType == "\"PIE\""))
-                vlist.emplace_back(0, 0, 0); // center point - first radial line
+                vlist.push_back(aiVector3D(0, 0, 0)); // center point - first radial line
             else if ((closureType != "CHORD") && (closureType != "\"CHORD\""))
                 Throw_IncorrectAttrValue("ArcClose2D", "closureType");
 
@@ -261,25 +262,22 @@ void X3DImporter::readDisk2D(XmlNode &node) {
             //
             // create quad list from two point lists
             //
-            if (tlist_i.size() < 2) {
-                // tlist_i and tlist_o has equal size.
-                throw DeadlyImportError("Disk2D. Not enough points for creating quad list."); 
-            }
+            if (tlist_i.size() < 2) throw DeadlyImportError("Disk2D. Not enough points for creating quad list."); // tlist_i and tlist_o has equal size.
 
             // add all quads except last
             for (std::list<aiVector3D>::iterator it_i = tlist_i.begin(), it_o = tlist_o.begin(); it_i != tlist_i.end();) {
                 // do not forget - CCW direction
-                vlist.emplace_back(*it_i++); // 1st point
-                vlist.emplace_back(*it_o++); // 2nd point
-                vlist.emplace_back(*it_o); // 3rd point
-                vlist.emplace_back(*it_i); // 4th point
+                vlist.push_back(*it_i++); // 1st point
+                vlist.push_back(*it_o++); // 2nd point
+                vlist.push_back(*it_o); // 3rd point
+                vlist.push_back(*it_i); // 4th point
             }
 
             // add last quad
-            vlist.emplace_back(tlist_i.back()); // 1st point
-            vlist.emplace_back(tlist_o.back()); // 2nd point
-            vlist.emplace_back(tlist_o.front()); // 3rd point
-            vlist.emplace_back(tlist_i.front()); // 4th point
+            vlist.push_back(*tlist_i.end()); // 1st point
+            vlist.push_back(*tlist_o.end()); // 2nd point
+            vlist.push_back(*tlist_o.begin()); // 3rd point
+            vlist.push_back(*tlist_o.begin()); // 4th point
 
             ((X3DNodeElementGeometry2D *)ne)->NumIndices = 4;
         }
@@ -323,7 +321,7 @@ void X3DImporter::readPolyline2D(XmlNode &node) {
 
         // convert vec2 to vec3
         for (std::list<aiVector2D>::iterator it2 = lineSegments.begin(); it2 != lineSegments.end(); ++it2)
-            tlist.emplace_back(it2->x, it2->y, 0);
+            tlist.push_back(aiVector3D(it2->x, it2->y, 0));
 
         // convert point set to line set
         X3DGeoHelper::extend_point_to_line(tlist, ((X3DNodeElementGeometry2D *)ne)->Vertices);
@@ -361,7 +359,7 @@ void X3DImporter::readPolypoint2D(XmlNode &node) {
 
         // convert vec2 to vec3
         for (std::list<aiVector2D>::iterator it2 = point.begin(); it2 != point.end(); ++it2) {
-            ((X3DNodeElementGeometry2D *)ne)->Vertices.emplace_back(it2->x, it2->y, 0);
+            ((X3DNodeElementGeometry2D *)ne)->Vertices.push_back(aiVector3D(it2->x, it2->y, 0));
         }
 
         ((X3DNodeElementGeometry2D *)ne)->NumIndices = 1;
@@ -405,10 +403,10 @@ void X3DImporter::readRectangle2D(XmlNode &node) {
         float y2 = size.y / 2.0f;
         std::list<aiVector3D> &vlist = ((X3DNodeElementGeometry2D *)ne)->Vertices; // just short alias.
 
-        vlist.emplace_back(x2, y1, 0); // 1st point
-        vlist.emplace_back(x2, y2, 0); // 2nd point
-        vlist.emplace_back(x1, y2, 0); // 3rd point
-        vlist.emplace_back(x1, y1, 0); // 4th point
+        vlist.push_back(aiVector3D(x2, y1, 0)); // 1st point
+        vlist.push_back(aiVector3D(x2, y2, 0)); // 2nd point
+        vlist.push_back(aiVector3D(x1, y2, 0)); // 3rd point
+        vlist.push_back(aiVector3D(x1, y1, 0)); // 4th point
         ((X3DNodeElementGeometry2D *)ne)->Solid = solid;
         ((X3DNodeElementGeometry2D *)ne)->NumIndices = 4;
         // check for X3DMetadataObject childs.
@@ -449,7 +447,7 @@ void X3DImporter::readTriangleSet2D(XmlNode &node) {
 
         // convert vec2 to vec3
         for (std::list<aiVector2D>::iterator it2 = vertices.begin(); it2 != vertices.end(); ++it2) {
-            ((X3DNodeElementGeometry2D *)ne)->Vertices.emplace_back(it2->x, it2->y, 0);
+            ((X3DNodeElementGeometry2D *)ne)->Vertices.push_back(aiVector3D(it2->x, it2->y, 0));
         }
 
         ((X3DNodeElementGeometry2D *)ne)->Solid = solid;

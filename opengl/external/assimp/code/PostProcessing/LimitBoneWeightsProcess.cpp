@@ -62,7 +62,10 @@ LimitBoneWeightsProcess::LimitBoneWeightsProcess()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-LimitBoneWeightsProcess::~LimitBoneWeightsProcess() = default;
+LimitBoneWeightsProcess::~LimitBoneWeightsProcess()
+{
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

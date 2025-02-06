@@ -55,7 +55,7 @@ namespace OpenGEX {
 class OpenGEXExporter {
 public:
     OpenGEXExporter();
-    ~OpenGEXExporter() = default;
+    ~OpenGEXExporter();
     bool exportScene( const char *filename, const aiScene* pScene );
 };
 

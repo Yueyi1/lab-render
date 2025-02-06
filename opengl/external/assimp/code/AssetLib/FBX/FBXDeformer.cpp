@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -57,16 +58,22 @@ namespace FBX {
 using namespace Util;
 
 // ------------------------------------------------------------------------------------------------
-Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name) :
-        Object(id,element,name) {
+Deformer::Deformer(uint64_t id, const Element& element, const Document& doc, const std::string& name)
+    : Object(id,element,name)
+{
     const Scope& sc = GetRequiredScope(element);
 
     const std::string& classname = ParseTokenAsString(GetRequiredToken(element,2));
     props = GetPropertyTable(doc,"Deformer.Fbx" + classname,element,sc,true);
 }
 
+
 // ------------------------------------------------------------------------------------------------
-Deformer::~Deformer() = default;
+Deformer::~Deformer()
+{
+
+}
+
 
 // ------------------------------------------------------------------------------------------------
 Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const std::string& name)
@@ -115,7 +122,11 @@ Cluster::Cluster(uint64_t id, const Element& element, const Document& doc, const
 
 
 // ------------------------------------------------------------------------------------------------
-Cluster::~Cluster() = default;
+Cluster::~Cluster()
+{
+
+}
+
 
 // ------------------------------------------------------------------------------------------------
 Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::string& name)
@@ -144,7 +155,10 @@ Skin::Skin(uint64_t id, const Element& element, const Document& doc, const std::
 
 
 // ------------------------------------------------------------------------------------------------
-Skin::~Skin() = default;
+Skin::~Skin()
+{
+
+}
 // ------------------------------------------------------------------------------------------------
 BlendShape::BlendShape(uint64_t id, const Element& element, const Document& doc, const std::string& name)
     : Deformer(id, element, doc, name)
@@ -160,7 +174,10 @@ BlendShape::BlendShape(uint64_t id, const Element& element, const Document& doc,
     }
 }
 // ------------------------------------------------------------------------------------------------
-BlendShape::~BlendShape() = default;
+BlendShape::~BlendShape()
+{
+
+}
 // ------------------------------------------------------------------------------------------------
 BlendShapeChannel::BlendShapeChannel(uint64_t id, const Element& element, const Document& doc, const std::string& name)
     : Deformer(id, element, doc, name)
@@ -185,7 +202,10 @@ BlendShapeChannel::BlendShapeChannel(uint64_t id, const Element& element, const 
     }
 }
 // ------------------------------------------------------------------------------------------------
-BlendShapeChannel::~BlendShapeChannel() = default;
+BlendShapeChannel::~BlendShapeChannel()
+{
+
+}
 // ------------------------------------------------------------------------------------------------
 }
 }

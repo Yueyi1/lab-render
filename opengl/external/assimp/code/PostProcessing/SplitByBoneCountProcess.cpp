@@ -67,7 +67,10 @@ SplitByBoneCountProcess::SplitByBoneCountProcess()
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-SplitByBoneCountProcess::~SplitByBoneCountProcess() = default;
+SplitByBoneCountProcess::~SplitByBoneCountProcess()
+{
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag.
@@ -173,7 +176,7 @@ void SplitByBoneCountProcess::SplitMesh( const aiMesh* pMesh, std::vector<aiMesh
           if (bone->mWeights[b].mWeight > 0.0f)
           {
             int vertexId = bone->mWeights[b].mVertexId;
-            vertexBones[vertexId].emplace_back(a, bone->mWeights[b].mWeight);
+            vertexBones[vertexId].push_back( BoneWeight( a, bone->mWeights[b].mWeight));
             if (vertexBones[vertexId].size() > mMaxBoneCount)
             {
               throw DeadlyImportError("SplitByBoneCountProcess: Single face requires more bones than specified max bone count!");

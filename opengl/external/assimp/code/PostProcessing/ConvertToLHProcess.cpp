@@ -81,11 +81,16 @@ void flipUVs(aiMeshType *pMesh) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-MakeLeftHandedProcess::MakeLeftHandedProcess() = default;
+MakeLeftHandedProcess::MakeLeftHandedProcess() :
+        BaseProcess() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-MakeLeftHandedProcess::~MakeLeftHandedProcess() = default;
+MakeLeftHandedProcess::~MakeLeftHandedProcess() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -245,11 +250,11 @@ void MakeLeftHandedProcess::ProcessAnimation(aiNodeAnim *pAnim) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-FlipUVsProcess::FlipUVsProcess() = default;
+FlipUVsProcess::FlipUVsProcess() {}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-FlipUVsProcess::~FlipUVsProcess() = default;
+FlipUVsProcess::~FlipUVsProcess() {}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.
@@ -307,11 +312,11 @@ void FlipUVsProcess::ProcessMesh(aiMesh *pMesh) {
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-FlipWindingOrderProcess::FlipWindingOrderProcess() = default;
+FlipWindingOrderProcess::FlipWindingOrderProcess() {}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-FlipWindingOrderProcess::~FlipWindingOrderProcess() = default;
+FlipWindingOrderProcess::~FlipWindingOrderProcess() {}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

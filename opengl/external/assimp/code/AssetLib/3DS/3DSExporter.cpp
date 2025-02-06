@@ -55,7 +55,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/IOSystem.hpp>
 
 #include <memory>
-#include <assimp/Exceptional.h>
 
 namespace Assimp {
 
@@ -210,7 +209,9 @@ Discreet3DSExporter::Discreet3DSExporter(std::shared_ptr<IOStream> &outfile, con
 }
 
 // ------------------------------------------------------------------------------------------------
-Discreet3DSExporter::~Discreet3DSExporter() = default;
+Discreet3DSExporter::~Discreet3DSExporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 int Discreet3DSExporter::WriteHierarchy(const aiNode &node, int seq, int sibling_level) {

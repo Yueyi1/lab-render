@@ -79,7 +79,12 @@ struct MetricInfo {
     float m_floatValue;
     int m_intValue;
 
-    MetricInfo(): m_stringValue( ), m_floatValue( 0.0f ), m_intValue( -1 ) {}
+    MetricInfo()
+    : m_stringValue( )
+    , m_floatValue( 0.0f )
+    , m_intValue( -1 ) {
+        // empty
+    }
 };
 
 /** @brief  This class is used to implement the OpenGEX importer
@@ -92,7 +97,7 @@ public:
     OpenGEXImporter();
 
     /// The class destructor.
-    ~OpenGEXImporter() override = default;
+    ~OpenGEXImporter() override;
 
     /// BaseImporter override.
     bool CanRead( const std::string &file, IOSystem *pIOHandler, bool checkSig ) const override;
@@ -165,7 +170,7 @@ private:
         std::vector<std::string> m_Names;
 
         RefInfo( aiNode *node, Type type, std::vector<std::string> &names );
-        ~RefInfo() = default;
+        ~RefInfo();
 
         RefInfo( const RefInfo & ) = delete;
         RefInfo &operator = ( const RefInfo & ) = delete;

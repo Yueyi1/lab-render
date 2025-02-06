@@ -1,7 +1,7 @@
 /**
- * pugixml parser - version 1.12
+ * pugixml parser - version 1.11
  * --------------------------------------------------------
- * Copyright (C) 2006-2022, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
+ * Copyright (C) 2006-2020, by Arseny Kapoulkine (arseny.kapoulkine@gmail.com)
  * Report bugs and download new versions at https://pugixml.org/
  *
  * This library is distributed under the MIT License. See notice at the end
@@ -132,10 +132,8 @@ using std::memset;
 #endif
 
 // In some environments MSVC is a compiler but the CRT lacks certain MSVC-specific features
-#if defined(_MSC_VER) && !defined(__S3E__) && !defined(_WIN32_WCE)
+#if defined(_MSC_VER) && !defined(__S3E__)
 #	define PUGI__MSVC_CRT_VERSION _MSC_VER
-#elif defined(_WIN32_WCE)
-#	define PUGI__MSVC_CRT_VERSION 1310 // MSVC7.1
 #endif
 
 // Not all platforms have snprintf; we define a wrapper that uses snprintf if possible. This only works with buffers with a known size.
@@ -528,8 +526,7 @@ PUGI__NS_BEGIN
 			xml_memory_page* page = xml_memory_page::construct(memory);
 			assert(page);
 
-			assert(this == _root->allocator);
-			page->allocator = this;
+			page->allocator = _root->allocator;
 
 			return page;
 		}
@@ -4735,7 +4732,7 @@ PUGI__NS_BEGIN
 	// we need to get length of entire file to load it in memory; the only (relatively) sane way to do it is via seek/tell trick
 	PUGI__FN xml_parse_status get_file_size(FILE* file, size_t& out_result)
 	{
-	#if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400
+	#if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
 		// there are 64-bit versions of fseek/ftell, let's use them
 		typedef __int64 length_type;
 
@@ -6738,7 +6735,7 @@ namespace pugi
 		return const_cast<xml_node*>(&_wrap); // BCC5 workaround
 	}
 
-	PUGI__FN xml_node_iterator& xml_node_iterator::operator++()
+	PUGI__FN const xml_node_iterator& xml_node_iterator::operator++()
 	{
 		assert(_wrap._root);
 		_wrap._root = _wrap._root->next_sibling;
@@ -6752,7 +6749,7 @@ namespace pugi
 		return temp;
 	}
 
-	PUGI__FN xml_node_iterator& xml_node_iterator::operator--()
+	PUGI__FN const xml_node_iterator& xml_node_iterator::operator--()
 	{
 		_wrap = _wrap._root ? _wrap.previous_sibling() : _parent.last_child();
 		return *this;
@@ -6799,7 +6796,7 @@ namespace pugi
 		return const_cast<xml_attribute*>(&_wrap); // BCC5 workaround
 	}
 
-	PUGI__FN xml_attribute_iterator& xml_attribute_iterator::operator++()
+	PUGI__FN const xml_attribute_iterator& xml_attribute_iterator::operator++()
 	{
 		assert(_wrap._attr);
 		_wrap._attr = _wrap._attr->next_attribute;
@@ -6813,7 +6810,7 @@ namespace pugi
 		return temp;
 	}
 
-	PUGI__FN xml_attribute_iterator& xml_attribute_iterator::operator--()
+	PUGI__FN const xml_attribute_iterator& xml_attribute_iterator::operator--()
 	{
 		_wrap = _wrap._attr ? _wrap.previous_attribute() : _parent.last_attribute();
 		return *this;
@@ -6860,7 +6857,7 @@ namespace pugi
 		return const_cast<xml_node*>(&_wrap); // BCC5 workaround
 	}
 
-	PUGI__FN xml_named_node_iterator& xml_named_node_iterator::operator++()
+	PUGI__FN const xml_named_node_iterator& xml_named_node_iterator::operator++()
 	{
 		assert(_wrap._root);
 		_wrap = _wrap.next_sibling(_name);
@@ -6874,7 +6871,7 @@ namespace pugi
 		return temp;
 	}
 
-	PUGI__FN xml_named_node_iterator& xml_named_node_iterator::operator--()
+	PUGI__FN const xml_named_node_iterator& xml_named_node_iterator::operator--()
 	{
 		if (_wrap._root)
 			_wrap = _wrap.previous_sibling(_name);
@@ -7094,12 +7091,8 @@ namespace pugi
 	#endif
 
 		// move allocation state
-		// note that other->_root may point to the embedded document page, in which case we should keep original (empty) state
-		if (other->_root != PUGI__GETPAGE(other))
-		{
-			doc->_root = other->_root;
-			doc->_busy_size = other->_busy_size;
-		}
+		doc->_root = other->_root;
+		doc->_busy_size = other->_busy_size;
 
 		// move buffer state
 		doc->buffer = other->buffer;
@@ -8272,7 +8265,7 @@ PUGI__NS_BEGIN
 	}
 
 	// gets mantissa digits in the form of 0.xxxxx with 0. implied and the exponent
-#if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400
+#if defined(PUGI__MSVC_CRT_VERSION) && PUGI__MSVC_CRT_VERSION >= 1400 && !defined(_WIN32_WCE)
 	PUGI__FN void convert_number_to_mantissa_exponent(double value, char (&buffer)[32], char** out_mantissa, int* out_exponent)
 	{
 		// get base values
@@ -11829,16 +11822,14 @@ PUGI__NS_BEGIN
 				lexeme_t l = _lexer.current();
 				_lexer.next();
 
+				if (++_depth > xpath_ast_depth_limit)
+					return error_rec();
+
 				if (l == lex_double_slash)
 				{
 					n = alloc_node(ast_step, n, axis_descendant_or_self, nodetest_type_node, 0);
 					if (!n) return 0;
-
-					++_depth;
 				}
-
-				if (++_depth > xpath_ast_depth_limit)
-					return error_rec();
 
 				n = parse_step(n);
 				if (!n) return 0;
@@ -13004,7 +12995,7 @@ namespace pugi
 #endif
 
 /**
- * Copyright (c) 2006-2022 Arseny Kapoulkine
+ * Copyright (c) 2006-2020 Arseny Kapoulkine
  *
  * Permission is hereby granted, free of charge, to any person
  * obtaining a copy of this software and associated documentation

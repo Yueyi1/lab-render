@@ -124,7 +124,7 @@ struct ID : ElemBase {
 // -------------------------------------------------------------------------------
 struct ListBase : ElemBase {
     std::shared_ptr<ElemBase> first;
-    std::weak_ptr<ElemBase> last;
+    std::shared_ptr<ElemBase> last;
 };
 
 // -------------------------------------------------------------------------------
@@ -642,21 +642,14 @@ struct ModifierData : ElemBase {
     };
 
     std::shared_ptr<ElemBase> next WARN;
-    std::weak_ptr<ElemBase> prev WARN;
+    std::shared_ptr<ElemBase> prev WARN;
 
     int type, mode;
     char name[32];
 };
 
-
-// ------------------------------------------------------------------------------------------------
-struct SharedModifierData : ElemBase {
-    ModifierData modifier;
-};
-
-
 // -------------------------------------------------------------------------------
-struct SubsurfModifierData : SharedModifierData {
+struct SubsurfModifierData : ElemBase {
 
     enum Type {
 
@@ -669,6 +662,7 @@ struct SubsurfModifierData : SharedModifierData {
         FLAGS_SubsurfUV = 1 << 3
     };
 
+    ModifierData modifier FAIL;
     short subdivType WARN;
     short levels FAIL;
     short renderLevels;
@@ -676,7 +670,7 @@ struct SubsurfModifierData : SharedModifierData {
 };
 
 // -------------------------------------------------------------------------------
-struct MirrorModifierData : SharedModifierData {
+struct MirrorModifierData : ElemBase {
 
     enum Flags {
         Flags_CLIPPING = 1 << 0,
@@ -688,9 +682,11 @@ struct MirrorModifierData : SharedModifierData {
         Flags_VGROUP = 1 << 6
     };
 
+    ModifierData modifier FAIL;
+
     short axis, flag;
     float tolerance;
-    std::weak_ptr<Object> mirror_ob;
+    std::shared_ptr<Object> mirror_ob;
 };
 
 // -------------------------------------------------------------------------------

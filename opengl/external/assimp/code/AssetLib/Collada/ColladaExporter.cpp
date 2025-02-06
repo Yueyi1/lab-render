@@ -154,7 +154,8 @@ ColladaExporter::ColladaExporter(const aiScene *pScene, IOSystem *pIOSystem, con
 
 // ------------------------------------------------------------------------------------------------
 // Destructor
-ColladaExporter::~ColladaExporter() = default;
+ColladaExporter::~ColladaExporter() {
+}
 
 // ------------------------------------------------------------------------------------------------
 // Starts writing the contents
@@ -1329,9 +1330,9 @@ void ColladaExporter::WriteAnimationLibrary(size_t pIndex) {
             std::vector<std::string> names;
             for (size_t i = 0; i < nodeAnim->mNumPositionKeys; ++i) {
                 if (nodeAnim->mPreState == aiAnimBehaviour_DEFAULT || nodeAnim->mPreState == aiAnimBehaviour_LINEAR || nodeAnim->mPreState == aiAnimBehaviour_REPEAT) {
-                    names.emplace_back("LINEAR");
+                    names.push_back("LINEAR");
                 } else if (nodeAnim->mPostState == aiAnimBehaviour_CONSTANT) {
-                    names.emplace_back("STEP");
+                    names.push_back("STEP");
                 }
             }
 

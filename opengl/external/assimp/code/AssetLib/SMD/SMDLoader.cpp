@@ -95,7 +95,9 @@ SMDImporter::SMDImporter() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-SMDImporter::~SMDImporter() = default;
+SMDImporter::~SMDImporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.
@@ -145,8 +147,10 @@ void SMDImporter::InternReadFile( const std::string& pFile, aiScene* scene, IOSy
 
     if (!asBones.empty()) {
         // Check whether all bones have been initialized
-        for (const auto &asBone : asBones) {
-            if (!asBone.mName.length()) {
+        for (std::vector<SMD::Bone>::const_iterator
+                i =  asBones.begin();
+                i != asBones.end();++i) {
+            if (!(*i).mName.length()) {
                 ASSIMP_LOG_WARN("SMD: Not all bones have been initialized");
                 break;
             }
@@ -206,10 +210,14 @@ void SMDImporter::LogWarning(const char* msg) {
 void SMDImporter::FixTimeValues() {
     double dDelta = (double)iSmallestFrame;
     double dMax = 0.0f;
-    for (auto &asBone : asBones) {
-        for (auto &asKey : asBone.sAnim.asKeys) {
-            asKey.dTime -= dDelta;
-            dMax = std::max(dMax, asKey.dTime);
+    for (std::vector<SMD::Bone>::iterator
+            iBone =  asBones.begin();
+            iBone != asBones.end();++iBone) {
+        for (std::vector<SMD::Bone::Animation::MatrixKey>::iterator
+                iKey =  (*iBone).sAnim.asKeys.begin();
+                iKey != (*iBone).sAnim.asKeys.end();++iKey) {
+            (*iKey).dTime -= dDelta;
+            dMax = std::max(dMax, (*iKey).dTime);
         }
     }
     dLengthOfAnim = dMax;
@@ -219,7 +227,7 @@ void SMDImporter::FixTimeValues() {
 // create output meshes
 void SMDImporter::CreateOutputMeshes() {
     if (aszTextures.empty()) {
-        aszTextures.emplace_back();
+        aszTextures.push_back(std::string());
     }
 
     // we need to sort all faces by their material index
@@ -229,7 +237,7 @@ void SMDImporter::CreateOutputMeshes() {
     pScene->mMeshes = new aiMesh*[pScene->mNumMeshes];
 
     typedef std::vector<unsigned int> FaceList;
-    std::unique_ptr<FaceList[]> aaiFaces(new FaceList[pScene->mNumMeshes]);
+    FaceList* aaiFaces = new FaceList[pScene->mNumMeshes];
 
     // approximate the space that will be required
     unsigned int iNum = (unsigned int)asTriangles.size() / pScene->mNumMeshes;
@@ -240,14 +248,17 @@ void SMDImporter::CreateOutputMeshes() {
 
     // collect all faces
     iNum = 0;
-    for (const auto &asTriangle : asTriangles) {
-        if (asTriangle.iTexture >= aszTextures.size()) {
+    for (std::vector<SMD::Face>::const_iterator
+            iFace =  asTriangles.begin();
+            iFace != asTriangles.end();++iFace,++iNum) {
+        if (UINT_MAX == (*iFace).iTexture) {
+            aaiFaces[(*iFace).iTexture].push_back( 0 );
+        } else if ((*iFace).iTexture >= aszTextures.size()) {
             ASSIMP_LOG_INFO("[SMD/VTA] Material index overflow in face");
-            aaiFaces[asTriangle.iTexture].push_back((unsigned int)aszTextures.size()-1);
+            aaiFaces[(*iFace).iTexture].push_back((unsigned int)aszTextures.size()-1);
         } else {
-            aaiFaces[asTriangle.iTexture].push_back(iNum);
+            aaiFaces[(*iFace).iTexture].push_back(iNum);
         }
-        ++iNum;
     }
 
     // now create the output meshes
@@ -264,7 +275,7 @@ void SMDImporter::CreateOutputMeshes() {
         typedef std::pair<unsigned int,float> TempWeightListEntry;
         typedef std::vector< TempWeightListEntry > TempBoneWeightList;
 
-        std::unique_ptr<TempBoneWeightList[]> aaiBones(new TempBoneWeightList[asBones.size()]());
+        TempBoneWeightList* aaiBones = new TempBoneWeightList[asBones.size()]();
 
         // try to reserve enough memory without wasting too much
         for (unsigned int iBone = 0; iBone < asBones.size();++iBone) {
@@ -320,7 +331,7 @@ void SMDImporter::CreateOutputMeshes() {
                             "to the vertex' parent node");
                         continue;
                     }
-                    aaiBones[pairval.first].emplace_back(iNum,pairval.second);
+                    aaiBones[pairval.first].push_back(TempWeightListEntry(iNum,pairval.second));
                     fSum += pairval.second;
                 }
                 // ******************************************************************
@@ -340,7 +351,8 @@ void SMDImporter::CreateOutputMeshes() {
 
                         if (fSum) {
                             fSum = 1 / fSum;
-                            for (auto &pairval : face.avVertices[iVert].aiBoneLinks) {
+                            for (unsigned int iBone = 0;iBone < face.avVertices[iVert].aiBoneLinks.size();++iBone) {
+                                TempWeightListEntry& pairval = face.avVertices[iVert].aiBoneLinks[iBone];
                                 if (pairval.first >= asBones.size()) {
                                     continue;
                                 }
@@ -348,7 +360,8 @@ void SMDImporter::CreateOutputMeshes() {
                             }
                         }
                     } else {
-                        aaiBones[face.avVertices[iVert].iParentNode].emplace_back(iNum,1.0f-fSum);
+                        aaiBones[face.avVertices[iVert].iParentNode].push_back(
+                            TempWeightListEntry(iNum,1.0f-fSum));
                     }
                 }
                 pcMesh->mFaces[iFace].mIndices[iVert] = iNum++;
@@ -385,7 +398,9 @@ void SMDImporter::CreateOutputMeshes() {
                 ++iNum;
             }
         }
+        delete[] aaiBones;
     }
+    delete[] aaiFaces;
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -396,7 +411,8 @@ void SMDImporter::AddBoneChildren(aiNode* pcNode, uint32_t iParent) {
     ai_assert( nullptr == pcNode->mChildren);
 
     // first count ...
-    for (auto &bone : asBones) {
+    for (unsigned int i = 0; i < asBones.size();++i) {
+        SMD::Bone& bone = asBones[i];
         if (bone.iParent == iParent) {
             ++pcNode->mNumChildren;
         }
@@ -500,25 +516,27 @@ void SMDImporter::CreateOutputAnimation(int index, const std::string &name) {
 
     // now build valid keys
     unsigned int a = 0;
-    for (const auto &asBone : asBones) {
+    for (std::vector<SMD::Bone>::const_iterator i = asBones.begin(); i != asBones.end(); ++i) {
         aiNodeAnim* p = pp[a] = new aiNodeAnim();
 
         // copy the name of the bone
-        p->mNodeName.Set(asBone.mName);
+        p->mNodeName.Set(i->mName);
 
-        p->mNumRotationKeys = (unsigned int)asBone.sAnim.asKeys.size();
+        p->mNumRotationKeys = (unsigned int)(*i).sAnim.asKeys.size();
         if (p->mNumRotationKeys){
             p->mNumPositionKeys = p->mNumRotationKeys;
             aiVectorKey* pVecKeys = p->mPositionKeys = new aiVectorKey[p->mNumRotationKeys];
             aiQuatKey* pRotKeys = p->mRotationKeys = new aiQuatKey[p->mNumRotationKeys];
 
-            for (const auto &asKey : asBone.sAnim.asKeys) {
-                pRotKeys->mTime = pVecKeys->mTime = asKey.dTime;
+            for (std::vector<SMD::Bone::Animation::MatrixKey>::const_iterator
+                    qq = (*i).sAnim.asKeys.begin();
+                    qq != (*i).sAnim.asKeys.end(); ++qq) {
+                pRotKeys->mTime = pVecKeys->mTime = (*qq).dTime;
 
                 // compute the rotation quaternion from the euler angles
                 // aiQuaternion: The order of the parameters is yzx?
-                pRotKeys->mValue = aiQuaternion(asKey.vRot.y, asKey.vRot.z, asKey.vRot.x);
-                pVecKeys->mValue = asKey.vPos;
+                pRotKeys->mValue = aiQuaternion((*qq).vRot.y, (*qq).vRot.z, (*qq).vRot.x);
+                pVecKeys->mValue = (*qq).vPos;
 
                 ++pVecKeys; ++pRotKeys;
             }
@@ -571,7 +589,7 @@ void SMDImporter::GetAnimationFileList(const std::string &pFile, IOSystem* pIOHa
                 animPath = p;
                 animName = DefaultIOSystem::completeBaseName(animPath);
             }
-            outList.emplace_back(animName, base + "/" + animPath);
+            outList.push_back(std::make_tuple(animName, base + "/" + animPath));
         }
         tok1 = strtok_s(nullptr, "\r\n", &context1);
     }
@@ -781,7 +799,7 @@ void SMDImporter::ParseVASection(const char* szCurrent, const char** szCurrentOu
             SkipLine(szCurrent,&szCurrent);
         } else {
             if(0 == iCurIndex) {
-                asTriangles.emplace_back();
+                asTriangles.push_back(SMD::Face());
             }
             if (++iCurIndex == 3) {
                 iCurIndex = 0;
@@ -901,7 +919,7 @@ void SMDImporter::ParseSkeletonElement(const char* szCurrent, const char** szCur
     }
     SMD::Bone& bone = asBones[iBone];
 
-    bone.sAnim.asKeys.emplace_back();
+    bone.sAnim.asKeys.push_back(SMD::Bone::Animation::MatrixKey());
     SMD::Bone::Animation::MatrixKey& key = bone.sAnim.asKeys.back();
 
     key.dTime = (double)iTime;
@@ -946,7 +964,7 @@ void SMDImporter::ParseSkeletonElement(const char* szCurrent, const char** szCur
 // ------------------------------------------------------------------------------------------------
 // Parse a triangle
 void SMDImporter::ParseTriangle(const char* szCurrent, const char** szCurrentOut) {
-    asTriangles.emplace_back();
+    asTriangles.push_back(SMD::Face());
     SMD::Face& face = asTriangles.back();
 
     if(!SkipSpaces(szCurrent,&szCurrent)) {
@@ -964,8 +982,8 @@ void SMDImporter::ParseTriangle(const char* szCurrent, const char** szCurrentOut
     SkipSpacesAndLineEnd(szCurrent,&szCurrent);
 
     // load three vertices
-    for (auto &avVertex : face.avVertices) {
-        ParseVertex(szCurrent,&szCurrent, avVertex);
+    for (unsigned int iVert = 0; iVert < 3;++iVert) {
+        ParseVertex(szCurrent,&szCurrent, face.avVertices[iVert]);
     }
     *szCurrentOut = szCurrent;
 }
@@ -1062,11 +1080,13 @@ void SMDImporter::ParseVertex(const char* szCurrent,
     }
     vertex.aiBoneLinks.resize(iSize,std::pair<unsigned int, float>(0,0.0f));
 
-    for (auto &aiBoneLink : vertex.aiBoneLinks) {
-        if(!ParseUnsignedInt(szCurrent,&szCurrent,aiBoneLink.first)) {
+    for (std::vector<std::pair<unsigned int, float> >::iterator
+            i =  vertex.aiBoneLinks.begin();
+            i != vertex.aiBoneLinks.end();++i) {
+        if(!ParseUnsignedInt(szCurrent,&szCurrent,(*i).first)) {
             SMDI_PARSE_RETURN;
         }
-        if(!ParseFloat(szCurrent,&szCurrent,aiBoneLink.second)) {
+        if(!ParseFloat(szCurrent,&szCurrent,(*i).second)) {
             SMDI_PARSE_RETURN;
         }
     }

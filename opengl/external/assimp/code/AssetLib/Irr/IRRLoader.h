@@ -206,7 +206,8 @@ private:
      */
     struct SkyboxVertex
     {
-        SkyboxVertex() = default;
+        SkyboxVertex()
+        {}
 
         //! Construction from single vertex components
         SkyboxVertex(ai_real px, ai_real py, ai_real pz,

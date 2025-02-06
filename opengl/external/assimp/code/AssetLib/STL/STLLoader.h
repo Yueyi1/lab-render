@@ -109,7 +109,7 @@ protected:
     const char* mBuffer;
 
     /** Size of the file, in bytes */
-    size_t mFileSize;
+    unsigned int mFileSize;
 
     /** Output scene */
     aiScene* mScene;

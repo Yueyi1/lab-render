@@ -2,7 +2,7 @@
 Open Asset Import Library (assimp)
 ----------------------------------------------------------------------
 
-Copyright (c) 2006-2022, assimp team
+Copyright (c) 2006-2020, assimp team
 
 All rights reserved.
 
@@ -47,7 +47,6 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <assimp/types.h>
 #include <map>
 #include <vector>
-#include "Common/Maybe.h"
 
 namespace Assimp {
 namespace ObjFile {
@@ -64,7 +63,7 @@ struct Face {
     using IndexArray = std::vector<unsigned int>;
 
     //! Primitive type
-    aiPrimitiveType mPrimitiveType;
+    aiPrimitiveType m_PrimitiveType;
     //! Vertex indices
     IndexArray m_vertices;
     //! Normal indices
@@ -76,12 +75,14 @@ struct Face {
 
     //! \brief  Default constructor
     Face(aiPrimitiveType pt = aiPrimitiveType_POLYGON) :
-            mPrimitiveType(pt), m_vertices(), m_normals(), m_texturCoords(), m_pMaterial(nullptr) {
+            m_PrimitiveType(pt), m_vertices(), m_normals(), m_texturCoords(), m_pMaterial(0L) {
         // empty
     }
 
     //! \brief  Destructor
-    ~Face() = default;
+    ~Face() {
+        // empty
+    }
 };
 
 // ------------------------------------------------------------------------------------------------
@@ -182,20 +183,17 @@ struct Material {
     aiColor3D transparent;
 
     //! PBR Roughness
-    Maybe<ai_real> roughness;
+    ai_real roughness;
     //! PBR Metallic
-    Maybe<ai_real> metallic;
+    ai_real metallic;
     //! PBR Metallic
-    Maybe<aiColor3D> sheen;
+    aiColor3D sheen;
     //! PBR Clearcoat Thickness
-    Maybe<ai_real> clearcoat_thickness;
+    ai_real clearcoat_thickness;
     //! PBR Clearcoat Rougness
-    Maybe<ai_real> clearcoat_roughness;
+    ai_real clearcoat_roughness;
     //! PBR Anisotropy
     ai_real anisotropy;
-
-    //! bump map multipler (normal map scalar)(-bm)
-    ai_real bump_multiplier;
 
     //! Constructor
     Material() :
@@ -205,13 +203,12 @@ struct Material {
             illumination_model(1),
             ior(ai_real(1.0)),
             transparent(ai_real(1.0), ai_real(1.0), ai_real(1.0)),
-            roughness(),
-            metallic(),
-            sheen(),
-            clearcoat_thickness(),
-            clearcoat_roughness(),
-            anisotropy(ai_real(0.0)),
-            bump_multiplier(ai_real(1.0)) {
+            roughness(ai_real(1.0)),
+            metallic(ai_real(0.0)),
+            sheen(ai_real(1.0), ai_real(1.0), ai_real(1.0)),
+            clearcoat_thickness(ai_real(0.0)),
+            clearcoat_roughness(ai_real(0.0)),
+            anisotropy(ai_real(0.0)) {
         std::fill_n(clamp, static_cast<unsigned int>(TextureTypeCount), false);
     }
 
@@ -228,7 +225,7 @@ struct Mesh {
     /// The name for the mesh
     std::string m_name;
     /// Array with pointer to all stored faces
-    std::vector<Face*> m_Faces;
+    std::vector<Face *> m_Faces;
     /// Assigned material
     Material *m_pMaterial;
     /// Number of stored indices.
@@ -271,65 +268,65 @@ struct Model {
     using ConstGroupMapIt = std::map<std::string, std::vector<unsigned int> *>::const_iterator;
 
     //! Model name
-    std::string mModelName;
+    std::string m_ModelName;
     //! List ob assigned objects
-    std::vector<Object *> mObjects;
+    std::vector<Object *> m_Objects;
     //! Pointer to current object
-    ObjFile::Object *mCurrentObject;
+    ObjFile::Object *m_pCurrent;
     //! Pointer to current material
-    ObjFile::Material *mCurrentMaterial;
+    ObjFile::Material *m_pCurrentMaterial;
     //! Pointer to default material
-    ObjFile::Material *mDefaultMaterial;
+    ObjFile::Material *m_pDefaultMaterial;
     //! Vector with all generated materials
-    std::vector<std::string> mMaterialLib;
+    std::vector<std::string> m_MaterialLib;
     //! Vector with all generated vertices
-    std::vector<aiVector3D> mVertices;
+    std::vector<aiVector3D> m_Vertices;
     //! vector with all generated normals
-    std::vector<aiVector3D> mNormals;
+    std::vector<aiVector3D> m_Normals;
     //! vector with all vertex colors
-    std::vector<aiVector3D> mVertexColors;
+    std::vector<aiVector3D> m_VertexColors;
     //! Group map
-    GroupMap mGroups;
+    GroupMap m_Groups;
     //! Group to face id assignment
-    std::vector<unsigned int> *mGroupFaceIDs;
+    std::vector<unsigned int> *m_pGroupFaceIDs;
     //! Active group
-    std::string mActiveGroup;
+    std::string m_strActiveGroup;
     //! Vector with generated texture coordinates
-    std::vector<aiVector3D> mTextureCoord;
+    std::vector<aiVector3D> m_TextureCoord;
     //! Maximum dimension of texture coordinates
-    unsigned int mTextureCoordDim;
+    unsigned int m_TextureCoordDim;
     //! Current mesh instance
-    Mesh *mCurrentMesh;
+    Mesh *m_pCurrentMesh;
     //! Vector with stored meshes
-    std::vector<Mesh *> mMeshes;
+    std::vector<Mesh *> m_Meshes;
     //! Material map
-    std::map<std::string, Material*> mMaterialMap;
+    std::map<std::string, Material *> m_MaterialMap;
 
     //! \brief  The default class constructor
     Model() :
-            mModelName(),
-            mCurrentObject(nullptr),
-            mCurrentMaterial(nullptr),
-            mDefaultMaterial(nullptr),
-            mGroupFaceIDs(nullptr),
-            mActiveGroup(),
-            mTextureCoordDim(0),
-            mCurrentMesh(nullptr) {
+            m_ModelName(),
+            m_pCurrent(nullptr),
+            m_pCurrentMaterial(nullptr),
+            m_pDefaultMaterial(nullptr),
+            m_pGroupFaceIDs(nullptr),
+            m_strActiveGroup(),
+            m_TextureCoordDim(0),
+            m_pCurrentMesh(nullptr) {
         // empty
     }
 
     //! \brief  The class destructor
     ~Model() {
-        for (auto & it : mObjects) {
+        for (auto & it : m_Objects) {
             delete it;
         }
-        for (auto & Meshe : mMeshes) {
+        for (auto & Meshe : m_Meshes) {
             delete Meshe;
         }
-        for (auto & Group : mGroups) {
+        for (auto & Group : m_Groups) {
             delete Group.second;
         }
-        for (auto & it : mMaterialMap) {
+        for (auto & it : m_MaterialMap) {
             delete it.second;
         }
     }

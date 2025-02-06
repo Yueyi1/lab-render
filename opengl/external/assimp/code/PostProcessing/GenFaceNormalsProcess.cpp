@@ -56,11 +56,15 @@ using namespace Assimp;
 
 // ------------------------------------------------------------------------------------------------
 // Constructor to be privately used by Importer
-GenFaceNormalsProcess::GenFaceNormalsProcess() = default;
+GenFaceNormalsProcess::GenFaceNormalsProcess() {
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-GenFaceNormalsProcess::~GenFaceNormalsProcess() = default;
+GenFaceNormalsProcess::~GenFaceNormalsProcess() {
+    // nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

@@ -75,7 +75,9 @@ TerragenImporter::TerragenImporter() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-TerragenImporter::~TerragenImporter() = default;
+TerragenImporter::~TerragenImporter() {
+    // empty
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

@@ -4,6 +4,7 @@ Open Asset Import Library (assimp)
 
 Copyright (c) 2006-2022, assimp team
 
+
 All rights reserved.
 
 Redistribution and use of this software in source and binary forms,
@@ -87,6 +88,11 @@ AnimationCurve::AnimationCurve(uint64_t id, const Element &element, const std::s
 }
 
 // ------------------------------------------------------------------------------------------------
+AnimationCurve::~AnimationCurve() {
+    // empty
+}
+
+// ------------------------------------------------------------------------------------------------
 AnimationCurveNode::AnimationCurveNode(uint64_t id, const Element &element, const std::string &name,
         const Document &doc, const char *const *target_prop_whitelist /*= nullptr*/,
         size_t whitelist_size /*= 0*/) :
@@ -142,6 +148,11 @@ AnimationCurveNode::AnimationCurveNode(uint64_t id, const Element &element, cons
 }
 
 // ------------------------------------------------------------------------------------------------
+AnimationCurveNode::~AnimationCurveNode() {
+    // empty
+}
+
+// ------------------------------------------------------------------------------------------------
 const AnimationCurveMap &AnimationCurveNode::Curves() const {
     if (curves.empty()) {
         // resolve attached animation curves
@@ -180,6 +191,11 @@ AnimationLayer::AnimationLayer(uint64_t id, const Element &element, const std::s
 
     // note: the props table here bears little importance and is usually absent
     props = GetPropertyTable(doc, "AnimationLayer.FbxAnimLayer", element, sc, true);
+}
+
+// ------------------------------------------------------------------------------------------------
+AnimationLayer::~AnimationLayer() {
+    // empty
 }
 
 // ------------------------------------------------------------------------------------------------
@@ -261,6 +277,11 @@ AnimationStack::AnimationStack(uint64_t id, const Element &element, const std::s
         }
         layers.push_back(anim);
     }
+}
+
+// ------------------------------------------------------------------------------------------------
+AnimationStack::~AnimationStack() {
+    // empty
 }
 
 } // namespace FBX

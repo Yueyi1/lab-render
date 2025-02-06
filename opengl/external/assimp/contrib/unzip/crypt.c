@@ -43,10 +43,10 @@
 
 #include "crypt.h"
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #   pragma warning(push)
 #   pragma warning(disable : 4244)
-#endif // _MSC_VER
+#endif // _WIN32
 
 /***************************************************************************/
 
@@ -164,8 +164,8 @@ int crypthead(const char *passwd, uint8_t *buf, int buf_size, uint32_t *pkeys,
     return n;
 }
 
-#ifdef _MSC_VER
+#ifdef _WIN32
 #   pragma warning(pop)
-#endif // _MSC_VER
+#endif // _WIN32
 
 /***************************************************************************/

@@ -70,7 +70,9 @@ PretransformVertices::PretransformVertices() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-PretransformVertices::~PretransformVertices() = default;
+PretransformVertices::~PretransformVertices() {
+	// nothing to do here
+}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the processing step is present in the given flag field.

@@ -79,7 +79,7 @@ IRRMeshImporter::IRRMeshImporter() :
 
 // ------------------------------------------------------------------------------------------------
 // Destructor, private as well
-IRRMeshImporter::~IRRMeshImporter() = default;
+IRRMeshImporter::~IRRMeshImporter() {}
 
 // ------------------------------------------------------------------------------------------------
 // Returns whether the class can handle the format of the given file.

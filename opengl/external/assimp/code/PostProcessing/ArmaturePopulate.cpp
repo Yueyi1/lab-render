@@ -48,10 +48,15 @@ OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 namespace Assimp {
 
 /// The default class constructor.
-ArmaturePopulate::ArmaturePopulate() = default;
+ArmaturePopulate::ArmaturePopulate() :
+        BaseProcess() {
+    // do nothing
+}
 
 /// The class destructor.
-ArmaturePopulate::~ArmaturePopulate() = default;
+ArmaturePopulate::~ArmaturePopulate() {
+    // do nothing
+}
 
 bool ArmaturePopulate::IsActive(unsigned int pFlags) const {
     return (pFlags & aiProcess_PopulateArmatureData) != 0;
@@ -85,14 +90,12 @@ void ArmaturePopulate::Execute(aiScene *out) {
 
         ai_assert(armature);
 
-#ifndef ASSIMP_BUILD_NO_ARMATUREPOPULATE_PROCESS
         // set up bone armature id
         bone->mArmature = armature;
 
         // set this bone node to be referenced properly
         ai_assert(bone_node);
         bone->mNode = bone_node;
-#endif
     }
 }
 

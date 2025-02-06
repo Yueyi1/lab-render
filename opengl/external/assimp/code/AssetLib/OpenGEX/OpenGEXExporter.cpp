@@ -46,9 +46,11 @@ namespace OpenGEX {
 
 #ifndef ASSIMP_BUILD_NO_OPENGEX_EXPORTER
 
-OpenGEXExporter::OpenGEXExporter() = default;
+OpenGEXExporter::OpenGEXExporter() {
+}
 
-
+OpenGEXExporter::~OpenGEXExporter() {
+}
 
 bool OpenGEXExporter::exportScene( const char * /*filename*/, const aiScene* /*pScene*/ ) {
     return true;

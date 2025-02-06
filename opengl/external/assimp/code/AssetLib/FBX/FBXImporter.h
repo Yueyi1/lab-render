@@ -69,14 +69,13 @@ typedef class basic_formatter<char, std::char_traits<char>, std::allocator<char>
 // -------------------------------------------------------------------------------------------
 class FBXImporter : public BaseImporter, public LogFunctions<FBXImporter> {
 public:
-    /// @brief The class constructor.
     FBXImporter();
+    ~FBXImporter() override;
 
-    ///	@brief The class destructor, default implementation.
-    ~FBXImporter() override = default;
-
-    /// @brief Will check the file for readability.
-    bool CanRead(const std::string &pFile, IOSystem *pIOHandler, bool checkSig) const override;
+    // --------------------
+    bool CanRead(const std::string &pFile,
+            IOSystem *pIOHandler,
+            bool checkSig) const override;
 
 protected:
     // --------------------
@@ -91,7 +90,7 @@ protected:
             IOSystem *pIOHandler) override;
 
 private:
-    FBX::ImportSettings mSettings;
+    FBX::ImportSettings settings;
 }; // !class FBXImporter
 
 } // end of namespace Assimp
